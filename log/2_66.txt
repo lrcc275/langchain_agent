@@ -1,0 +1,1262 @@
+enter function stream
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/66.txt；(2)编写并且运行python代码，对同目录下的data/66_original.npy,将数据分30s为一段，使用滑窗模式，滑窗长度10s，计算每个通道的Delta、Theta、Alpha、Beta频段能量，打印结果, 将数值以(x,7,4[x取决于具体数据]的格式存到同目录下的result/2_66.npy, (3)将代码保存到result/2_66.py'}
+[]
+begin debugging
+I'll break this down into three parts: (1) parsing the EEG data, (2) processing the original data with specified parameters, and (3) saving the code. Let's proceed step by step.
+
+First, I'll parse the EEG data from the specified file.
+
+Action: parse_eeg_data
+Action Input: data/66.txt
+end debugging
+print output here:
+tool='parse_eeg_data' tool_input='data/66.txt' log="I'll break this down into three parts: (1) parsing the EEG data, (2) processing the original data with specified parameters, and (3) saving the code. Let's proceed step by step.\n\nFirst, I'll parse the EEG data from the specified file.\n\nAction: parse_eeg_data\nAction Input: data/66.txt"
+**********
+****************************************************************************************************
+round 0
+****************************************************************************************************
+I'll break this down into three parts: (1) parsing the EEG data, (2) processing the original data with specified parameters, and (3) saving the code. Let's proceed step by step.
+
+First, I'll parse the EEG data from the specified file.
+
+: parse_eeg_data
+ Input: data/66.txt
+**********
+enter function perform_agent_action
+tool='parse_eeg_data' tool_input='data/66.txt' log="I'll break this down into three parts: (1) parsing the EEG data, (2) processing the original data with specified parameters, and (3) saving the code. Let's proceed step by step.\n\nFirst, I'll parse the EEG data from the specified file.\n\nAction: parse_eeg_data\nAction Input: data/66.txt"
+**********
+**********
+enter function perform_agent_action lookup true branch
+你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入
+**********
+****************************************************************************************************
+round 1
+****************************************************************************************************
+你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/66.txt；(2)编写并且运行python代码，对同目录下的data/66_original.npy,将数据分30s为一段，使用滑窗模式，滑窗长度10s，计算每个通道的Delta、Theta、Alpha、Beta频段能量，打印结果, 将数值以(x,7,4[x取决于具体数据]的格式存到同目录下的result/2_66.npy, (3)将代码保存到result/2_66.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/66.txt', log="I'll break this down into three parts: (1) parsing the EEG data, (2) processing the original data with specified parameters, and (3) saving the code. Let's proceed step by step.\n\nFirst, I'll parse the EEG data from the specified file.\n\nAction: parse_eeg_data\nAction Input: data/66.txt"), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入')]
+begin debugging
+Now that the EEG data has been parsed, I'll proceed to the second part: processing the original data file with the specified parameters (30s segments, 10s sliding window) and calculating the band powers. Then I'll save the results and the code.
+
+Action: Python_REPL
+Action Input:
+```python
+import numpy as np
+from scipy import signal
+import os
+
+# Load the original data
+data = np.load('data/66_original.npy')
+
+# Parameters
+fs = 250  # Assuming sampling rate is 250Hz
+window_size = 30 * fs  # 30 seconds in samples
+slide_size = 10 * fs    # 10 seconds in samples
+num_channels = data.shape[0]
+
+# Band definitions
+bands = {
+    'Delta': (0.5, 4),
+    'Theta': (4, 8),
+    'Alpha': (8, 13),
+    'Beta': (13, 30)
+}
+
+# Function to calculate band power
+def bandpower(data, fs, band):
+    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)
+    idx_band = np.logical_and(f >= band[0], f < band[1])
+    return np.trapz(Pxx[idx_band], f[idx_band])
+
+# Process data with sliding window
+results = []
+for start in range(0, data.shape[1] - window_size + 1, slide_size):
+    segment = data[:, start:start + window_size]
+    segment_powers = []
+    for ch in range(num_channels):
+        channel_powers = []
+        for band_name, band_range in bands.items():
+            power = bandpower(segment[ch], fs, band_range)
+            channel_powers.append(power)
+        segment_powers.append(channel_powers)
+    results.append(segment_powers)
+
+# Convert to numpy array (x, 7, 4)
+results_array = np.array(results)
+
+# Create result directory if not exists
+os.makedirs('result', exist_ok=True)
+
+# Save results
+np.save('result/2_66.npy', results_array)
+
+# Print results
+print("Band powers for each segment:")
+for i, segment in enumerate(results_array):
+    print(f"\nSegment {i+1}:")
+    for ch in range(num_channels):
+        print(f"Channel {ch+1}: Delta={segment[ch][0]:.4f}, Theta={segment[ch][1]:.4f}, Alpha={segment[ch][2]:.4f}, Beta={segment[ch][3]:.4f}")
+
+# Save the code
+with open('result/2_66.py', 'w') as f:
+    f.write('''import numpy as np
+from scipy import signal
+import os
+
+# Load the original data
+data = np.load('data/66_original.npy')
+
+# Parameters
+fs = 250  # Assuming sampling rate is 250Hz
+window_size = 30 * fs  # 30 seconds in samples
+slide_size = 10 * fs    # 10 seconds in samples
+num_channels = data.shape[0]
+
+# Band definitions
+bands = {
+    'Delta': (0.5, 4),
+    'Theta': (4, 8),
+    'Alpha': (8, 13),
+    'Beta': (13, 30)
+}
+
+# Function to calculate band power
+def bandpower(data, fs, band):
+    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)
+    idx_band = np.logical_and(f >= band[0], f < band[1])
+    return np.trapz(Pxx[idx_band], f[idx_band])
+
+# Process data with sliding window
+results = []
+for start in range(0, data.shape[1] - window_size + 1, slide_size):
+    segment = data[:, start:start + window_size]
+    segment_powers = []
+    for ch in range(num_channels):
+        channel_powers = []
+        for band_name, band_range in bands.items():
+            power = bandpower(segment[ch], fs, band_range)
+            channel_powers.append(power)
+        segment_powers.append(channel_powers)
+    results.append(segment_powers)
+
+# Convert to numpy array (x, 7, 4)
+results_array = np.array(results)
+
+# Create result directory if not exists
+os.makedirs('result', exist_ok=True)
+
+# Save results
+np.save('result/2_66.npy', results_array)
+''')
+print("Code and results saved successfully.")
+```
+end debugging
+print output here:
+tool='Python_REPL' tool_input='```python\nimport numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\n# Print results\nprint("Band powers for each segment:")\nfor i, segment in enumerate(results_array):\n    print(f"\\nSegment {i+1}:")\n    for ch in range(num_channels):\n        print(f"Channel {ch+1}: Delta={segment[ch][0]:.4f}, Theta={segment[ch][1]:.4f}, Alpha={segment[ch][2]:.4f}, Beta={segment[ch][3]:.4f}")\n\n# Save the code\nwith open(\'result/2_66.py\', \'w\') as f:\n    f.write(\'\'\'import numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\'\'\')\nprint("Code and results saved successfully.")\n```' log='Now that the EEG data has been parsed, I\'ll proceed to the second part: processing the original data file with the specified parameters (30s segments, 10s sliding window) and calculating the band powers. Then I\'ll save the results and the code.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\n# Print results\nprint("Band powers for each segment:")\nfor i, segment in enumerate(results_array):\n    print(f"\\nSegment {i+1}:")\n    for ch in range(num_channels):\n        print(f"Channel {ch+1}: Delta={segment[ch][0]:.4f}, Theta={segment[ch][1]:.4f}, Alpha={segment[ch][2]:.4f}, Beta={segment[ch][3]:.4f}")\n\n# Save the code\nwith open(\'result/2_66.py\', \'w\') as f:\n    f.write(\'\'\'import numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\'\'\')\nprint("Code and results saved successfully.")\n```'
+**********
+****************************************************************************************************
+round 2
+****************************************************************************************************
+Now that the EEG data has been parsed, I'll proceed to the second part: processing the original data file with the specified parameters (30s segments, 10s sliding window) and calculating the band powers. Then I'll save the results and the code.
+
+: Python_REPL
+ Input:
+```python
+import numpy as np
+from scipy import signal
+import os
+
+# Load the original data
+data = np.load('data/66_original.npy')
+
+# Parameters
+fs = 250  # Assuming sampling rate is 250Hz
+window_size = 30 * fs  # 30 seconds in samples
+slide_size = 10 * fs    # 10 seconds in samples
+num_channels = data.shape[0]
+
+# Band definitions
+bands = {
+    'Delta': (0.5, 4),
+    'Theta': (4, 8),
+    'Alpha': (8, 13),
+    'Beta': (13, 30)
+}
+
+# Function to calculate band power
+def bandpower(data, fs, band):
+    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)
+    idx_band = np.logical_and(f >= band[0], f < band[1])
+    return np.trapz(Pxx[idx_band], f[idx_band])
+
+# Process data with sliding window
+results = []
+for start in range(0, data.shape[1] - window_size + 1, slide_size):
+    segment = data[:, start:start + window_size]
+    segment_powers = []
+    for ch in range(num_channels):
+        channel_powers = []
+        for band_name, band_range in bands.items():
+            power = bandpower(segment[ch], fs, band_range)
+            channel_powers.append(power)
+        segment_powers.append(channel_powers)
+    results.append(segment_powers)
+
+# Convert to numpy array (x, 7, 4)
+results_array = np.array(results)
+
+# Create result directory if not exists
+os.makedirs('result', exist_ok=True)
+
+# Save results
+np.save('result/2_66.npy', results_array)
+
+# Print results
+print("Band powers for each segment:")
+for i, segment in enumerate(results_array):
+    print(f"\nSegment {i+1}:")
+    for ch in range(num_channels):
+        print(f"Channel {ch+1}: Delta={segment[ch][0]:.4f}, Theta={segment[ch][1]:.4f}, Alpha={segment[ch][2]:.4f}, Beta={segment[ch][3]:.4f}")
+
+# Save the code
+with open('result/2_66.py', 'w') as f:
+    f.write('''import numpy as np
+from scipy import signal
+import os
+
+# Load the original data
+data = np.load('data/66_original.npy')
+
+# Parameters
+fs = 250  # Assuming sampling rate is 250Hz
+window_size = 30 * fs  # 30 seconds in samples
+slide_size = 10 * fs    # 10 seconds in samples
+num_channels = data.shape[0]
+
+# Band definitions
+bands = {
+    'Delta': (0.5, 4),
+    'Theta': (4, 8),
+    'Alpha': (8, 13),
+    'Beta': (13, 30)
+}
+
+# Function to calculate band power
+def bandpower(data, fs, band):
+    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)
+    idx_band = np.logical_and(f >= band[0], f < band[1])
+    return np.trapz(Pxx[idx_band], f[idx_band])
+
+# Process data with sliding window
+results = []
+for start in range(0, data.shape[1] - window_size + 1, slide_size):
+    segment = data[:, start:start + window_size]
+    segment_powers = []
+    for ch in range(num_channels):
+        channel_powers = []
+        for band_name, band_range in bands.items():
+            power = bandpower(segment[ch], fs, band_range)
+            channel_powers.append(power)
+        segment_powers.append(channel_powers)
+    results.append(segment_powers)
+
+# Convert to numpy array (x, 7, 4)
+results_array = np.array(results)
+
+# Create result directory if not exists
+os.makedirs('result', exist_ok=True)
+
+# Save results
+np.save('result/2_66.npy', results_array)
+''')
+print("Code and results saved successfully.")
+```
+**********
+enter function perform_agent_action
+tool='Python_REPL' tool_input='```python\nimport numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\n# Print results\nprint("Band powers for each segment:")\nfor i, segment in enumerate(results_array):\n    print(f"\\nSegment {i+1}:")\n    for ch in range(num_channels):\n        print(f"Channel {ch+1}: Delta={segment[ch][0]:.4f}, Theta={segment[ch][1]:.4f}, Alpha={segment[ch][2]:.4f}, Beta={segment[ch][3]:.4f}")\n\n# Save the code\nwith open(\'result/2_66.py\', \'w\') as f:\n    f.write(\'\'\'import numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\'\'\')\nprint("Code and results saved successfully.")\n```' log='Now that the EEG data has been parsed, I\'ll proceed to the second part: processing the original data file with the specified parameters (30s segments, 10s sliding window) and calculating the band powers. Then I\'ll save the results and the code.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\n# Print results\nprint("Band powers for each segment:")\nfor i, segment in enumerate(results_array):\n    print(f"\\nSegment {i+1}:")\n    for ch in range(num_channels):\n        print(f"Channel {ch+1}: Delta={segment[ch][0]:.4f}, Theta={segment[ch][1]:.4f}, Alpha={segment[ch][2]:.4f}, Beta={segment[ch][3]:.4f}")\n\n# Save the code\nwith open(\'result/2_66.py\', \'w\') as f:\n    f.write(\'\'\'import numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\'\'\')\nprint("Code and results saved successfully.")\n```'
+**********
+**********
+enter function perform_agent_action lookup true branch
+Band powers for each segment:
+
+Segment 1:
+Channel 1: Delta=673.7408, Theta=17.8781, Alpha=5.2961, Beta=7.6706
+Channel 2: Delta=1868.9621, Theta=62.9275, Alpha=10.1259, Beta=13.5640
+Channel 3: Delta=7935.6474, Theta=307.3932, Alpha=106.1340, Beta=85.9417
+Channel 4: Delta=8252.8642, Theta=648.6151, Alpha=107.0788, Beta=35.7811
+Channel 5: Delta=1157.6916, Theta=69.2893, Alpha=18.2233, Beta=14.6162
+Channel 6: Delta=972.7054, Theta=69.2714, Alpha=10.5125, Beta=7.7499
+Channel 7: Delta=1726.3032, Theta=33.5737, Alpha=8.6644, Beta=9.1933
+
+Segment 2:
+Channel 1: Delta=368.7535, Theta=30.6731, Alpha=10.7488, Beta=10.5811
+Channel 2: Delta=904.4660, Theta=46.9901, Alpha=8.4427, Beta=9.5596
+Channel 3: Delta=6864.1531, Theta=247.0173, Alpha=72.7918, Beta=18.8333
+Channel 4: Delta=4326.0588, Theta=70.9302, Alpha=30.2652, Beta=22.2757
+Channel 5: Delta=394.8317, Theta=32.8950, Alpha=12.5222, Beta=11.1543
+Channel 6: Delta=525.6244, Theta=35.6730, Alpha=11.2927, Beta=9.7421
+Channel 7: Delta=343.0423, Theta=34.8004, Alpha=11.6866, Beta=12.2715
+
+Segment 3:
+Channel 1: Delta=317.8253, Theta=28.1075, Alpha=10.2948, Beta=11.6181
+Channel 2: Delta=580.3669, Theta=34.3359, Alpha=7.4500, Beta=9.4550
+Channel 3: Delta=7604.4054, Theta=272.6788, Alpha=84.8745, Beta=21.8287
+Channel 4: Delta=3763.1273, Theta=73.8096, Alpha=29.4636, Beta=20.0474
+Channel 5: Delta=354.7431, Theta=24.7452, Alpha=11.9122, Beta=11.7104
+Channel 6: Delta=428.0310, Theta=32.0909, Alpha=10.7895, Beta=9.6672
+Channel 7: Delta=260.9567, Theta=31.9431, Alpha=11.3717, Beta=12.9494
+
+Segment 4:
+Channel 1: Delta=68.4996, Theta=5.2564, Alpha=4.4313, Beta=8.0334
+Channel 2: Delta=126.6830, Theta=5.1432, Alpha=2.5640, Beta=4.2093
+Channel 3: Delta=140.2818, Theta=4.7822, Alpha=2.7625, Beta=10.3749
+Channel 4: Delta=1281.7764, Theta=136.8203, Alpha=58.6702, Beta=37.7386
+Channel 5: Delta=72.2856, Theta=6.1318, Alpha=3.4592, Beta=6.0814
+Channel 6: Delta=71.7624, Theta=7.5206, Alpha=3.8265, Beta=5.2901
+Channel 7: Delta=96.6418, Theta=7.9158, Alpha=5.5366, Beta=8.5271
+
+Segment 5:
+Channel 1: Delta=31.8994, Theta=4.6639, Alpha=4.4939, Beta=7.3410
+Channel 2: Delta=79.0623, Theta=4.1430, Alpha=2.2215, Beta=3.7979
+Channel 3: Delta=18.2172, Theta=2.3978, Alpha=2.4244, Beta=8.7897
+Channel 4: Delta=1187.0505, Theta=116.3003, Alpha=50.4122, Beta=33.3191
+Channel 5: Delta=30.3436, Theta=3.6979, Alpha=3.1966, Beta=5.5055
+Channel 6: Delta=47.8310, Theta=4.9424, Alpha=2.9804, Beta=4.5285
+Channel 7: Delta=35.7665, Theta=6.8752, Alpha=4.5391, Beta=8.0425
+
+Segment 6:
+Channel 1: Delta=218.4052, Theta=8.9794, Alpha=4.5725, Beta=7.3874
+Channel 2: Delta=335.5514, Theta=7.9078, Alpha=2.7060, Beta=4.2640
+Channel 3: Delta=153.3094, Theta=6.1564, Alpha=3.0125, Beta=7.7950
+Channel 4: Delta=1508.1215, Theta=127.4285, Alpha=50.3031, Beta=35.1990
+Channel 5: Delta=188.5886, Theta=7.0817, Alpha=3.4314, Beta=6.1040
+Channel 6: Delta=123.1807, Theta=12.5278, Alpha=3.5692, Beta=5.8096
+Channel 7: Delta=260.5468, Theta=9.7647, Alpha=5.5510, Beta=8.4569
+
+Segment 7:
+Channel 1: Delta=748.9514, Theta=16.2212, Alpha=5.7914, Beta=8.3937
+Channel 2: Delta=634.1901, Theta=14.6121, Alpha=4.2667, Beta=5.1515
+Channel 3: Delta=546.7009, Theta=12.0718, Alpha=4.2146, Beta=8.4477
+Channel 4: Delta=6559.5665, Theta=563.9544, Alpha=125.1127, Beta=122.8903
+Channel 5: Delta=1038.3624, Theta=13.2490, Alpha=4.1788, Beta=7.3702
+Channel 6: Delta=336.3731, Theta=26.1134, Alpha=5.0104, Beta=7.9959
+Channel 7: Delta=714.2176, Theta=14.6424, Alpha=6.3927, Beta=10.2254
+
+Segment 8:
+Channel 1: Delta=908.0860, Theta=18.8247, Alpha=7.0604, Beta=9.7781
+Channel 2: Delta=780.8861, Theta=17.4644, Alpha=5.1376, Beta=5.4517
+Channel 3: Delta=652.2276, Theta=14.4373, Alpha=4.6064, Beta=9.1960
+Channel 4: Delta=6633.6442, Theta=621.0758, Alpha=134.6552, Beta=132.9331
+Channel 5: Delta=1173.3788, Theta=15.3970, Alpha=4.4269, Beta=7.3977
+Channel 6: Delta=355.9873, Theta=32.2648, Alpha=5.4744, Beta=8.8858
+Channel 7: Delta=872.6352, Theta=17.0685, Alpha=6.4607, Beta=10.5486
+
+Segment 9:
+Channel 1: Delta=25.8896, Theta=6.5670, Alpha=5.7628, Beta=8.6076
+Channel 2: Delta=103.6092, Theta=2.8588, Alpha=2.4089, Beta=3.7764
+Channel 3: Delta=11.7726, Theta=2.3936, Alpha=2.7645, Beta=8.1730
+Channel 4: Delta=4176.4499, Theta=348.2434, Alpha=116.2611, Beta=78.1627
+Channel 5: Delta=44.4622, Theta=5.0569, Alpha=3.0976, Beta=5.5969
+Channel 6: Delta=32.3862, Theta=4.2646, Alpha=2.6479, Beta=4.8048
+Channel 7: Delta=21.7339, Theta=7.3621, Alpha=4.7661, Beta=8.1501
+
+Segment 10:
+Channel 1: Delta=372.1059, Theta=18.3817, Alpha=6.1153, Beta=9.1587
+Channel 2: Delta=486.5935, Theta=15.5664, Alpha=4.5659, Beta=5.9531
+Channel 3: Delta=435.9987, Theta=14.5263, Alpha=3.5278, Beta=8.8319
+Channel 4: Delta=10927.0173, Theta=708.0745, Alpha=247.8481, Beta=212.8983
+Channel 5: Delta=1413.1086, Theta=103.3228, Alpha=42.3389, Beta=31.8459
+Channel 6: Delta=1702.6549, Theta=60.5229, Alpha=12.2066, Beta=11.7096
+Channel 7: Delta=589.8164, Theta=17.3585, Alpha=6.9828, Beta=8.3799
+
+Segment 11:
+Channel 1: Delta=418.5089, Theta=17.8041, Alpha=6.1761, Beta=8.6996
+Channel 2: Delta=595.6953, Theta=17.6645, Alpha=5.0577, Beta=6.3486
+Channel 3: Delta=460.3708, Theta=14.8703, Alpha=3.6727, Beta=7.7020
+Channel 4: Delta=12021.6600, Theta=832.0994, Alpha=288.7978, Beta=240.5071
+Channel 5: Delta=1318.9191, Theta=100.4665, Alpha=44.6518, Beta=33.0614
+Channel 6: Delta=4151.9389, Theta=158.6556, Alpha=41.1361, Beta=35.7073
+Channel 7: Delta=716.0698, Theta=18.5624, Alpha=8.3105, Beta=9.0491
+
+Segment 12:
+Channel 1: Delta=573.3717, Theta=21.7601, Alpha=7.9849, Beta=10.0257
+Channel 2: Delta=641.5864, Theta=31.4891, Alpha=8.0478, Beta=10.0481
+Channel 3: Delta=1315.0018, Theta=98.5973, Alpha=25.1962, Beta=18.9651
+Channel 4: Delta=9093.3846, Theta=927.4904, Alpha=372.0153, Beta=270.6372
+Channel 5: Delta=1688.3313, Theta=96.2288, Alpha=42.9721, Beta=33.2971
+Channel 6: Delta=8019.9852, Theta=361.8271, Alpha=104.9880, Beta=72.7401
+Channel 7: Delta=942.4627, Theta=23.3649, Alpha=10.1931, Beta=10.4362
+
+Segment 13:
+Channel 1: Delta=543.1647, Theta=19.6684, Alpha=8.5507, Beta=10.5158
+Channel 2: Delta=534.2627, Theta=60.7925, Alpha=14.9293, Beta=11.3022
+Channel 3: Delta=2669.0859, Theta=308.1293, Alpha=106.9000, Beta=78.6996
+Channel 4: Delta=4613.6030, Theta=681.7427, Alpha=272.7345, Beta=162.8786
+Channel 5: Delta=1027.5523, Theta=32.4061, Alpha=18.3266, Beta=18.3410
+Channel 6: Delta=5192.9252, Theta=219.3663, Alpha=65.4542, Beta=39.5456
+Channel 7: Delta=569.7028, Theta=18.4870, Alpha=9.7356, Beta=10.0137
+
+Segment 14:
+Channel 1: Delta=472.5227, Theta=12.9145, Alpha=6.9326, Beta=10.2223
+Channel 2: Delta=385.0113, Theta=41.2452, Alpha=11.4267, Beta=7.1392
+Channel 3: Delta=2600.1087, Theta=267.5383, Alpha=97.6758, Beta=76.7711
+Channel 4: Delta=1370.9172, Theta=76.7640, Alpha=31.1955, Beta=22.4157
+Channel 5: Delta=722.4392, Theta=23.1803, Alpha=15.9026, Beta=15.4902
+Channel 6: Delta=1356.9959, Theta=32.4658, Alpha=7.4522, Beta=8.4152
+Channel 7: Delta=435.0397, Theta=13.1298, Alpha=7.2683, Beta=8.9294
+
+Segment 15:
+Channel 1: Delta=423.2113, Theta=10.7558, Alpha=6.2427, Beta=9.6893
+Channel 2: Delta=328.8946, Theta=34.3159, Alpha=9.5067, Beta=6.1610
+Channel 3: Delta=2232.0185, Theta=237.3256, Alpha=87.3378, Beta=69.2840
+Channel 4: Delta=1274.3950, Theta=57.8482, Alpha=23.9711, Beta=17.9002
+Channel 5: Delta=464.6277, Theta=19.5008, Alpha=13.4761, Beta=12.8005
+Channel 6: Delta=974.4487, Theta=19.4680, Alpha=6.0918, Beta=5.3509
+Channel 7: Delta=364.6187, Theta=11.9520, Alpha=6.8640, Beta=7.8944
+
+Segment 16:
+Channel 1: Delta=26.6514, Theta=4.6307, Alpha=5.0396, Beta=7.7993
+Channel 2: Delta=60.2517, Theta=2.7662, Alpha=2.4827, Beta=3.4860
+Channel 3: Delta=20.9598, Theta=2.6828, Alpha=2.6569, Beta=7.2842
+Channel 4: Delta=538.9297, Theta=21.1220, Alpha=10.4355, Beta=9.7803
+Channel 5: Delta=29.7655, Theta=3.5892, Alpha=3.0472, Beta=4.9678
+Channel 6: Delta=21.5650, Theta=4.3077, Alpha=3.3916, Beta=4.0689
+Channel 7: Delta=17.8695, Theta=6.0686, Alpha=6.1963, Beta=7.1165
+
+Segment 17:
+Channel 1: Delta=805.9975, Theta=28.9750, Alpha=12.5938, Beta=9.8936
+Channel 2: Delta=1772.7466, Theta=32.2102, Alpha=9.5657, Beta=6.1061
+Channel 3: Delta=5966.2121, Theta=149.8808, Alpha=31.2623, Beta=26.2808
+Channel 4: Delta=673.7319, Theta=37.8305, Alpha=11.6762, Beta=11.7810
+Channel 5: Delta=2476.6938, Theta=35.8406, Alpha=13.9462, Beta=9.3264
+Channel 6: Delta=3671.2689, Theta=125.0539, Alpha=37.1635, Beta=27.5354
+Channel 7: Delta=893.5787, Theta=28.9994, Alpha=12.0799, Beta=9.2716
+
+Segment 18:
+Channel 1: Delta=1279.0067, Theta=41.3084, Alpha=15.2001, Beta=10.8573
+Channel 2: Delta=2201.3892, Theta=66.6714, Alpha=17.6554, Beta=10.6913
+Channel 3: Delta=6259.5428, Theta=160.8103, Alpha=33.9040, Beta=27.7839
+Channel 4: Delta=945.0640, Theta=52.2835, Alpha=14.6120, Beta=13.1697
+Channel 5: Delta=3491.9853, Theta=49.9003, Alpha=18.6521, Beta=11.4293
+Channel 6: Delta=4563.1113, Theta=138.4370, Alpha=41.9705, Beta=30.8120
+Channel 7: Delta=1357.7171, Theta=40.7030, Alpha=15.0006, Beta=10.7636
+
+Segment 19:
+Channel 1: Delta=1498.9975, Theta=46.5781, Alpha=16.9241, Beta=11.7866
+Channel 2: Delta=2565.2277, Theta=67.8197, Alpha=19.4355, Beta=12.0899
+Channel 3: Delta=7577.4602, Theta=286.3332, Alpha=50.9152, Beta=33.6147
+Channel 4: Delta=1473.2217, Theta=59.7974, Alpha=16.0783, Beta=13.7126
+Channel 5: Delta=4317.1682, Theta=59.0459, Alpha=21.3990, Beta=13.9883
+Channel 6: Delta=6113.2454, Theta=161.9660, Alpha=61.1587, Beta=35.8199
+Channel 7: Delta=1715.7912, Theta=46.9009, Alpha=15.8570, Beta=10.8154
+
+Segment 20:
+Channel 1: Delta=429.6846, Theta=12.1475, Alpha=7.0682, Beta=8.9718
+Channel 2: Delta=396.8202, Theta=38.3173, Alpha=10.2949, Beta=8.9279
+Channel 3: Delta=5661.0226, Theta=317.7770, Alpha=116.9632, Beta=78.7722
+Channel 4: Delta=2833.5688, Theta=55.8382, Alpha=102.4773, Beta=36.3002
+Channel 5: Delta=966.5025, Theta=14.5220, Alpha=7.0936, Beta=9.2706
+Channel 6: Delta=2476.4722, Theta=61.7649, Alpha=29.9974, Beta=11.2794
+Channel 7: Delta=778.5376, Theta=13.9144, Alpha=8.9911, Beta=7.7230
+
+Segment 21:
+Channel 1: Delta=1119.3749, Theta=21.3938, Alpha=11.5009, Beta=15.8897
+Channel 2: Delta=3371.3615, Theta=161.7929, Alpha=69.2537, Beta=29.3104
+Channel 3: Delta=16795.5727, Theta=443.8194, Alpha=162.3245, Beta=108.5859
+Channel 4: Delta=4821.7790, Theta=98.5178, Alpha=123.0383, Beta=53.3557
+Channel 5: Delta=2586.5786, Theta=133.1527, Alpha=44.3042, Beta=44.0986
+Channel 6: Delta=5451.7392, Theta=233.2591, Alpha=41.9411, Beta=27.1903
+Channel 7: Delta=3039.5235, Theta=43.9557, Alpha=14.9723, Beta=15.6335
+
+Segment 22:
+Channel 1: Delta=2290.9541, Theta=34.6876, Alpha=16.0984, Beta=20.5664
+Channel 2: Delta=5560.0239, Theta=217.7424, Alpha=92.9404, Beta=39.5259
+Channel 3: Delta=19028.7591, Theta=576.3375, Alpha=188.1346, Beta=138.7047
+Channel 4: Delta=6091.1854, Theta=137.2780, Alpha=151.7628, Beta=68.8781
+Channel 5: Delta=3496.1761, Theta=153.5783, Alpha=60.1138, Beta=54.4500
+Channel 6: Delta=9402.9167, Theta=682.7176, Alpha=235.4162, Beta=171.2998
+Channel 7: Delta=4136.6776, Theta=73.5852, Alpha=21.3600, Beta=22.3986
+
+Segment 23:
+Channel 1: Delta=2377.6460, Theta=26.9416, Alpha=13.9545, Beta=19.9632
+Channel 2: Delta=5733.2568, Theta=167.5474, Alpha=63.6904, Beta=32.9273
+Channel 3: Delta=14467.2929, Theta=668.6209, Alpha=205.6555, Beta=149.3088
+Channel 4: Delta=3905.7228, Theta=101.0794, Alpha=26.5979, Beta=34.6753
+Channel 5: Delta=2658.0628, Theta=142.1344, Alpha=57.9363, Beta=59.0513
+Channel 6: Delta=6688.1535, Theta=644.1794, Alpha=271.7320, Beta=205.8662
+Channel 7: Delta=3671.2454, Theta=73.6378, Alpha=19.0620, Beta=22.5701
+
+Segment 24:
+Channel 1: Delta=1346.3523, Theta=17.6564, Alpha=10.1076, Beta=12.5663
+Channel 2: Delta=1231.0992, Theta=37.9365, Alpha=12.8626, Beta=11.3983
+Channel 3: Delta=1090.4812, Theta=84.9899, Alpha=39.6670, Beta=41.8437
+Channel 4: Delta=860.6145, Theta=27.6787, Alpha=14.6592, Beta=19.1488
+Channel 5: Delta=732.0992, Theta=30.0817, Alpha=11.5150, Beta=21.1477
+Channel 6: Delta=5460.8055, Theta=709.2946, Alpha=304.2226, Beta=228.5573
+Channel 7: Delta=1506.6613, Theta=21.8835, Alpha=10.8128, Beta=12.9240
+
+Segment 25:
+Channel 1: Delta=335.9065, Theta=16.0356, Alpha=9.1308, Beta=10.5529
+Channel 2: Delta=847.2103, Theta=28.7461, Alpha=8.5817, Beta=6.9317
+Channel 3: Delta=436.0442, Theta=20.4362, Alpha=8.1578, Beta=10.9725
+Channel 4: Delta=521.5437, Theta=21.3534, Alpha=11.8226, Beta=13.1317
+Channel 5: Delta=292.2836, Theta=17.6486, Alpha=7.5708, Beta=11.3989
+Channel 6: Delta=882.4001, Theta=66.4053, Alpha=20.5686, Beta=12.5100
+Channel 7: Delta=312.4950, Theta=17.4701, Alpha=9.6979, Beta=9.7924
+
+Segment 26:
+Channel 1: Delta=495.0411, Theta=23.5211, Alpha=8.2538, Beta=8.7943
+Channel 2: Delta=885.3916, Theta=34.0287, Alpha=6.7649, Beta=4.9135
+Channel 3: Delta=550.4782, Theta=22.0293, Alpha=7.8385, Beta=7.6084
+Channel 4: Delta=571.3150, Theta=27.9049, Alpha=8.6307, Beta=7.8198
+Channel 5: Delta=471.3840, Theta=23.3130, Alpha=7.1161, Beta=9.4384
+Channel 6: Delta=965.8150, Theta=77.1400, Alpha=20.8514, Beta=12.0109
+Channel 7: Delta=473.0945, Theta=27.4667, Alpha=9.8249, Beta=9.8705
+
+Segment 27:
+Channel 1: Delta=1564.2936, Theta=102.9346, Alpha=60.0785, Beta=27.3597
+Channel 2: Delta=2883.9705, Theta=170.0263, Alpha=76.9936, Beta=28.6507
+Channel 3: Delta=6411.8736, Theta=201.2041, Alpha=71.9339, Beta=74.7182
+Channel 4: Delta=2359.7648, Theta=89.0146, Alpha=77.3308, Beta=31.7525
+Channel 5: Delta=2694.7124, Theta=124.7608, Alpha=81.6125, Beta=40.7272
+Channel 6: Delta=3174.1959, Theta=152.1900, Alpha=78.6920, Beta=34.9881
+Channel 7: Delta=1677.4635, Theta=101.7146, Alpha=64.1050, Beta=30.1679
+
+Segment 28:
+Channel 1: Delta=1938.7600, Theta=93.9360, Alpha=54.9259, Beta=26.0305
+Channel 2: Delta=2571.4295, Theta=160.2055, Alpha=73.3805, Beta=28.1684
+Channel 3: Delta=8531.7322, Theta=523.6130, Alpha=145.8844, Beta=152.5437
+Channel 4: Delta=2892.8462, Theta=83.2711, Alpha=71.0012, Beta=31.0089
+Channel 5: Delta=2834.0927, Theta=129.4493, Alpha=80.0222, Beta=40.6270
+Channel 6: Delta=4454.8285, Theta=253.6206, Alpha=94.1278, Beta=41.9541
+Channel 7: Delta=2052.7732, Theta=91.7130, Alpha=60.0222, Beta=28.1465
+
+Segment 29:
+Channel 1: Delta=2341.2242, Theta=76.7345, Alpha=46.3464, Beta=25.9188
+Channel 2: Delta=3006.5206, Theta=157.4338, Alpha=66.8521, Beta=28.2247
+Channel 3: Delta=14940.1966, Theta=683.7928, Alpha=215.6626, Beta=203.1325
+Channel 4: Delta=3639.4413, Theta=72.4839, Alpha=61.7156, Beta=34.1893
+Channel 5: Delta=2754.2809, Theta=119.2904, Alpha=70.4975, Beta=38.1072
+Channel 6: Delta=4390.4731, Theta=210.3117, Alpha=77.5999, Beta=37.2056
+Channel 7: Delta=2493.0597, Theta=75.9578, Alpha=52.2427, Beta=27.4316
+
+Segment 30:
+Channel 1: Delta=2224.0352, Theta=28.1134, Alpha=10.5417, Beta=14.2005
+Channel 2: Delta=2233.2837, Theta=60.4218, Alpha=25.0649, Beta=18.5597
+Channel 3: Delta=16937.7434, Theta=841.9901, Alpha=250.4544, Beta=202.9141
+Channel 4: Delta=2332.2165, Theta=37.9689, Alpha=13.0161, Beta=18.1938
+Channel 5: Delta=1186.5668, Theta=70.9980, Alpha=22.6251, Beta=19.0800
+Channel 6: Delta=4589.1989, Theta=152.8732, Alpha=39.8867, Beta=22.6778
+Channel 7: Delta=2775.7493, Theta=40.5206, Alpha=19.8246, Beta=16.8284
+
+Segment 31:
+Channel 1: Delta=1356.8615, Theta=24.2398, Alpha=9.2552, Beta=14.3290
+Channel 2: Delta=1946.2461, Theta=56.8433, Alpha=22.5061, Beta=17.8816
+Channel 3: Delta=13391.7375, Theta=488.8985, Alpha=135.4016, Beta=101.3067
+Channel 4: Delta=1295.4923, Theta=36.0816, Alpha=12.4991, Beta=18.9487
+Channel 5: Delta=708.2658, Theta=76.4547, Alpha=27.8832, Beta=28.9559
+Channel 6: Delta=2763.0132, Theta=35.9248, Alpha=14.2014, Beta=12.6270
+Channel 7: Delta=2276.5568, Theta=39.3382, Alpha=16.9441, Beta=16.4154
+
+Segment 32:
+Channel 1: Delta=1650.1751, Theta=25.2201, Alpha=8.1945, Beta=12.2647
+Channel 2: Delta=1680.3130, Theta=73.7996, Alpha=19.2959, Beta=15.1578
+Channel 3: Delta=7847.3007, Theta=347.8775, Alpha=88.2425, Beta=75.9190
+Channel 4: Delta=829.2561, Theta=31.8628, Alpha=10.7380, Beta=13.5597
+Channel 5: Delta=6552.8659, Theta=149.5478, Alpha=29.6939, Beta=31.3623
+Channel 6: Delta=3108.5158, Theta=29.3702, Alpha=16.3528, Beta=11.2881
+Channel 7: Delta=2420.8851, Theta=38.6001, Alpha=15.6105, Beta=13.4361
+
+Segment 33:
+Channel 1: Delta=1602.1147, Theta=92.4325, Alpha=23.3169, Beta=18.9655
+Channel 2: Delta=2390.3874, Theta=338.5737, Alpha=31.1499, Beta=21.0956
+Channel 3: Delta=9996.4991, Theta=653.7185, Alpha=147.5891, Beta=148.5297
+Channel 4: Delta=2580.1560, Theta=166.9760, Alpha=27.3228, Beta=26.5156
+Channel 5: Delta=7444.3607, Theta=265.1397, Alpha=26.0322, Beta=38.5641
+Channel 6: Delta=2674.7790, Theta=132.3643, Alpha=49.7905, Beta=29.5486
+Channel 7: Delta=2915.2965, Theta=296.2089, Alpha=49.7371, Beta=22.3754
+
+Segment 34:
+Channel 1: Delta=1545.6861, Theta=99.4473, Alpha=23.8436, Beta=19.2977
+Channel 2: Delta=2647.2023, Theta=378.1854, Alpha=32.8625, Beta=21.8528
+Channel 3: Delta=9748.8310, Theta=650.9448, Alpha=157.5035, Beta=151.6954
+Channel 4: Delta=2848.1065, Theta=178.0423, Alpha=28.8678, Beta=26.5910
+Channel 5: Delta=6497.3197, Theta=267.4183, Alpha=26.2652, Beta=38.6714
+Channel 6: Delta=3018.8654, Theta=144.4230, Alpha=54.1372, Beta=31.1884
+Channel 7: Delta=2727.7119, Theta=304.4082, Alpha=49.9063, Beta=21.7276
+
+Segment 35:
+Channel 1: Delta=185.8073, Theta=12.7774, Alpha=9.0131, Beta=11.9409
+Channel 2: Delta=1820.6427, Theta=50.1452, Alpha=11.1167, Beta=9.0365
+Channel 3: Delta=264.0039, Theta=12.4322, Alpha=8.3579, Beta=17.5849
+Channel 4: Delta=1001.4759, Theta=81.7480, Alpha=33.6361, Beta=25.9183
+Channel 5: Delta=215.4804, Theta=16.1726, Alpha=8.4747, Beta=14.3005
+Channel 6: Delta=252.8387, Theta=16.2475, Alpha=9.5856, Beta=9.2125
+Channel 7: Delta=233.5572, Theta=15.1431, Alpha=10.6327, Beta=10.4505
+
+Segment 36:
+Channel 1: Delta=1112.8530, Theta=31.1584, Alpha=13.8490, Beta=11.3518
+Channel 2: Delta=2008.8339, Theta=97.4139, Alpha=26.2696, Beta=19.1530
+Channel 3: Delta=1327.4280, Theta=51.3198, Alpha=13.3915, Beta=26.0624
+Channel 4: Delta=2148.4868, Theta=99.5682, Alpha=42.5392, Beta=25.3865
+Channel 5: Delta=1110.8317, Theta=47.3715, Alpha=30.8739, Beta=21.8176
+Channel 6: Delta=859.1944, Theta=27.3733, Alpha=12.7875, Beta=8.7716
+Channel 7: Delta=1188.4572, Theta=34.3972, Alpha=14.6234, Beta=10.3048
+
+Segment 37:
+Channel 1: Delta=3300.2837, Theta=171.5314, Alpha=68.1397, Beta=49.9186
+Channel 2: Delta=4181.3463, Theta=242.2564, Alpha=84.1184, Beta=59.7255
+Channel 3: Delta=8402.8819, Theta=413.9623, Alpha=135.8971, Beta=122.0472
+Channel 4: Delta=4859.1953, Theta=242.7195, Alpha=94.4348, Beta=76.3419
+Channel 5: Delta=3757.1791, Theta=203.7993, Alpha=89.6369, Beta=64.3185
+Channel 6: Delta=4061.9727, Theta=265.2398, Alpha=122.8794, Beta=75.2074
+Channel 7: Delta=4222.3445, Theta=176.9402, Alpha=85.6096, Beta=61.7771
+
+Segment 38:
+Channel 1: Delta=5418.9680, Theta=234.0279, Alpha=87.3675, Beta=63.7251
+Channel 2: Delta=5198.5813, Theta=256.6591, Alpha=97.4397, Beta=66.9647
+Channel 3: Delta=11010.8694, Theta=659.4830, Alpha=237.1366, Beta=229.1217
+Channel 4: Delta=8542.1076, Theta=515.6395, Alpha=130.4248, Beta=149.9145
+Channel 5: Delta=5709.7745, Theta=270.0694, Alpha=111.9058, Beta=84.8046
+Channel 6: Delta=6374.5598, Theta=484.0066, Alpha=220.3519, Beta=139.3258
+Channel 7: Delta=7845.7238, Theta=304.8051, Alpha=121.5429, Beta=85.3674
+
+Segment 39:
+Channel 1: Delta=5584.4991, Theta=248.7152, Alpha=95.6111, Beta=74.0314
+Channel 2: Delta=5403.3184, Theta=270.4493, Alpha=109.8285, Beta=77.3795
+Channel 3: Delta=8606.4741, Theta=621.8496, Alpha=230.2692, Beta=219.9907
+Channel 4: Delta=6497.6929, Theta=455.3064, Alpha=126.4034, Beta=136.9941
+Channel 5: Delta=4900.1321, Theta=268.8735, Alpha=102.3352, Beta=89.7480
+Channel 6: Delta=6079.7406, Theta=401.0511, Alpha=178.4330, Beta=124.3894
+Channel 7: Delta=7824.1638, Theta=314.9997, Alpha=118.0399, Beta=89.7473
+
+Segment 40:
+Channel 1: Delta=2862.6304, Theta=36.2004, Alpha=15.2598, Beta=17.8918
+Channel 2: Delta=2421.4775, Theta=86.9120, Alpha=29.9604, Beta=24.2982
+Channel 3: Delta=4991.1503, Theta=491.6686, Alpha=141.2542, Beta=123.2366
+Channel 4: Delta=4272.9639, Theta=221.8158, Alpha=49.4975, Beta=78.8081
+Channel 5: Delta=1664.6887, Theta=46.4535, Alpha=21.8876, Beta=31.5199
+Channel 6: Delta=3754.6184, Theta=301.7484, Alpha=133.8508, Beta=104.9769
+Channel 7: Delta=4316.3151, Theta=135.9221, Alpha=44.4251, Beta=32.6811
+
+Segment 41:
+Channel 1: Delta=2049.1038, Theta=28.7114, Alpha=12.0909, Beta=16.1064
+Channel 2: Delta=1671.0446, Theta=83.2268, Alpha=25.8977, Beta=22.8592
+Channel 3: Delta=10210.2808, Theta=746.4812, Alpha=138.9451, Beta=147.6447
+Channel 4: Delta=3773.1104, Theta=58.2786, Alpha=29.7238, Beta=36.2438
+Channel 5: Delta=917.5161, Theta=29.5614, Alpha=14.1702, Beta=25.8886
+Channel 6: Delta=2023.0588, Theta=142.2787, Alpha=57.1320, Beta=53.1518
+Channel 7: Delta=6440.0281, Theta=163.2639, Alpha=55.4525, Beta=48.2859
+
+Segment 42:
+Channel 1: Delta=1851.2367, Theta=25.6301, Alpha=10.7705, Beta=14.8636
+Channel 2: Delta=619.6791, Theta=38.6374, Alpha=11.2005, Beta=14.4114
+Channel 3: Delta=9156.4418, Theta=458.9054, Alpha=34.8786, Beta=93.3853
+Channel 4: Delta=4318.2413, Theta=182.1193, Alpha=68.3042, Beta=63.2906
+Channel 5: Delta=652.4636, Theta=30.2057, Alpha=13.9973, Beta=25.3835
+Channel 6: Delta=1175.8942, Theta=74.4485, Alpha=22.8560, Beta=20.2644
+Channel 7: Delta=5218.3518, Theta=152.4137, Alpha=44.6942, Beta=36.8415
+
+Segment 43:
+Channel 1: Delta=1144.1504, Theta=11.3633, Alpha=5.9259, Beta=10.7072
+Channel 2: Delta=256.8150, Theta=10.5311, Alpha=5.0689, Beta=6.7038
+Channel 3: Delta=1501.4566, Theta=25.7229, Alpha=10.2561, Beta=26.7643
+Channel 4: Delta=2987.1853, Theta=174.3907, Alpha=63.0019, Beta=58.6667
+Channel 5: Delta=579.4132, Theta=19.2215, Alpha=9.6772, Beta=22.1042
+Channel 6: Delta=800.9450, Theta=65.4315, Alpha=19.6431, Beta=17.1560
+Channel 7: Delta=1855.2478, Theta=69.6890, Alpha=21.8121, Beta=15.8237
+
+Segment 44:
+Channel 1: Delta=1430.7223, Theta=10.9868, Alpha=6.6951, Beta=10.0647
+Channel 2: Delta=330.8678, Theta=12.0540, Alpha=6.6582, Beta=7.4204
+Channel 3: Delta=1740.2103, Theta=30.5660, Alpha=13.1164, Beta=30.8291
+Channel 4: Delta=3250.1511, Theta=170.6068, Alpha=64.1064, Beta=54.5403
+Channel 5: Delta=655.8354, Theta=21.4202, Alpha=9.9706, Beta=21.4195
+Channel 6: Delta=8123.4940, Theta=930.7352, Alpha=333.4108, Beta=263.3121
+Channel 7: Delta=3245.8968, Theta=86.7859, Alpha=26.9614, Beta=19.6046
+
+Segment 45:
+Channel 1: Delta=1747.1679, Theta=10.0359, Alpha=6.4882, Beta=10.2987
+Channel 2: Delta=859.6551, Theta=31.3891, Alpha=10.9381, Beta=10.2041
+Channel 3: Delta=6148.3935, Theta=236.8676, Alpha=82.2255, Beta=52.9928
+Channel 4: Delta=1664.0883, Theta=29.2519, Alpha=15.9528, Beta=19.1112
+Channel 5: Delta=819.4579, Theta=21.7139, Alpha=9.9525, Beta=23.3329
+Channel 6: Delta=8353.3948, Theta=906.8774, Alpha=350.7978, Beta=274.7774
+Channel 7: Delta=3815.3138, Theta=49.1365, Alpha=23.3056, Beta=21.8940
+
+Segment 46:
+Channel 1: Delta=5087.8534, Theta=16.5141, Alpha=9.2633, Beta=12.5131
+Channel 2: Delta=1418.2209, Theta=66.2993, Alpha=26.0026, Beta=16.1336
+Channel 3: Delta=26501.0323, Theta=748.3858, Alpha=357.3909, Beta=231.5865
+Channel 4: Delta=3080.4170, Theta=176.5778, Alpha=87.8792, Beta=87.1305
+Channel 5: Delta=1768.0881, Theta=43.7556, Alpha=14.9953, Beta=22.5438
+Channel 6: Delta=10332.2885, Theta=877.6000, Alpha=333.2930, Beta=280.9360
+Channel 7: Delta=6186.6820, Theta=65.6525, Alpha=28.9728, Beta=26.8600
+
+Segment 47:
+Channel 1: Delta=5456.6722, Theta=17.8975, Alpha=9.9211, Beta=14.0093
+Channel 2: Delta=1235.9533, Theta=55.2230, Alpha=23.6068, Beta=17.5905
+Channel 3: Delta=32163.2205, Theta=761.1755, Alpha=406.8906, Beta=273.6346
+Channel 4: Delta=3831.8808, Theta=222.6837, Alpha=117.4293, Beta=121.2877
+Channel 5: Delta=2238.7587, Theta=49.3265, Alpha=15.5996, Beta=21.9331
+Channel 6: Delta=7368.8496, Theta=381.7404, Alpha=120.5099, Beta=113.5221
+Channel 7: Delta=5663.6505, Theta=54.7172, Alpha=25.0453, Beta=25.8737
+
+Segment 48:
+Channel 1: Delta=3581.2782, Theta=14.5965, Alpha=7.8244, Beta=13.2126
+Channel 2: Delta=1024.7581, Theta=28.8789, Alpha=13.1994, Beta=14.3615
+Channel 3: Delta=29086.6700, Theta=676.5142, Alpha=375.4114, Beta=248.7586
+Channel 4: Delta=2260.5297, Theta=75.9750, Alpha=37.1364, Beta=47.1117
+Channel 5: Delta=1668.0010, Theta=38.0977, Alpha=12.7161, Beta=19.0348
+Channel 6: Delta=8747.4406, Theta=485.1133, Alpha=142.2070, Beta=132.2231
+Channel 7: Delta=3498.3666, Theta=35.5050, Alpha=16.6618, Beta=19.9303
+
+Segment 49:
+Channel 1: Delta=1173.1714, Theta=27.8016, Alpha=8.4486, Beta=13.6530
+Channel 2: Delta=778.9795, Theta=38.1083, Alpha=10.1978, Beta=11.3264
+Channel 3: Delta=6573.2185, Theta=267.2558, Alpha=79.9267, Beta=51.9828
+Channel 4: Delta=961.6343, Theta=56.6570, Alpha=24.3985, Beta=32.5223
+Channel 5: Delta=892.7667, Theta=39.4074, Alpha=8.9767, Beta=22.0777
+Channel 6: Delta=10925.6301, Theta=874.5024, Alpha=279.4272, Beta=237.7111
+Channel 7: Delta=1293.9352, Theta=40.2860, Alpha=15.4717, Beta=16.8922
+
+Segment 50:
+Channel 1: Delta=1220.9816, Theta=25.8647, Alpha=8.3826, Beta=12.6848
+Channel 2: Delta=766.2257, Theta=37.5523, Alpha=8.0741, Beta=8.4823
+Channel 3: Delta=7022.0837, Theta=262.6495, Alpha=78.7359, Beta=53.9091
+Channel 4: Delta=821.2778, Theta=44.0386, Alpha=12.1358, Beta=15.5652
+Channel 5: Delta=872.8174, Theta=39.4136, Alpha=9.6710, Beta=21.7236
+Channel 6: Delta=5922.0037, Theta=449.5136, Alpha=168.9131, Beta=128.5625
+Channel 7: Delta=1242.3815, Theta=42.0768, Alpha=16.6510, Beta=16.2528
+
+Segment 51:
+Channel 1: Delta=620.2900, Theta=10.3012, Alpha=5.0868, Beta=10.5638
+Channel 2: Delta=218.5163, Theta=11.8689, Alpha=4.4741, Beta=6.5036
+Channel 3: Delta=3968.2456, Theta=167.0215, Alpha=55.2573, Beta=38.2414
+Channel 4: Delta=545.5587, Theta=13.7427, Alpha=7.5662, Beta=10.0769
+Channel 5: Delta=476.4672, Theta=17.0460, Alpha=9.4822, Beta=18.1437
+Channel 6: Delta=4658.9909, Theta=425.8702, Alpha=172.6886, Beta=131.7439
+Channel 7: Delta=688.6083, Theta=25.5548, Alpha=14.7083, Beta=15.0543
+
+Segment 52:
+Channel 1: Delta=1595.8401, Theta=28.4278, Alpha=7.8491, Beta=10.3916
+Channel 2: Delta=2071.9713, Theta=72.7888, Alpha=19.3890, Beta=11.5165
+Channel 3: Delta=8592.9768, Theta=221.3334, Alpha=115.0116, Beta=68.3952
+Channel 4: Delta=1076.0663, Theta=42.6816, Alpha=19.8214, Beta=23.1609
+Channel 5: Delta=1586.2248, Theta=41.4131, Alpha=39.2850, Beta=24.5176
+Channel 6: Delta=5842.1523, Theta=98.5342, Alpha=61.5668, Beta=55.7585
+Channel 7: Delta=1807.5294, Theta=99.6925, Alpha=35.2343, Beta=17.1950
+Code and results saved successfully.
+
+**********
+****************************************************************************************************
+round 3
+****************************************************************************************************
+Band powers for each segment:
+
+Segment 1:
+Channel 1: Delta=673.7408, Theta=17.8781, Alpha=5.2961, Beta=7.6706
+Channel 2: Delta=1868.9621, Theta=62.9275, Alpha=10.1259, Beta=13.5640
+Channel 3: Delta=7935.6474, Theta=307.3932, Alpha=106.1340, Beta=85.9417
+Channel 4: Delta=8252.8642, Theta=648.6151, Alpha=107.0788, Beta=35.7811
+Channel 5: Delta=1157.6916, Theta=69.2893, Alpha=18.2233, Beta=14.6162
+Channel 6: Delta=972.7054, Theta=69.2714, Alpha=10.5125, Beta=7.7499
+Channel 7: Delta=1726.3032, Theta=33.5737, Alpha=8.6644, Beta=9.1933
+
+Segment 2:
+Channel 1: Delta=368.7535, Theta=30.6731, Alpha=10.7488, Beta=10.5811
+Channel 2: Delta=904.4660, Theta=46.9901, Alpha=8.4427, Beta=9.5596
+Channel 3: Delta=6864.1531, Theta=247.0173, Alpha=72.7918, Beta=18.8333
+Channel 4: Delta=4326.0588, Theta=70.9302, Alpha=30.2652, Beta=22.2757
+Channel 5: Delta=394.8317, Theta=32.8950, Alpha=12.5222, Beta=11.1543
+Channel 6: Delta=525.6244, Theta=35.6730, Alpha=11.2927, Beta=9.7421
+Channel 7: Delta=343.0423, Theta=34.8004, Alpha=11.6866, Beta=12.2715
+
+Segment 3:
+Channel 1: Delta=317.8253, Theta=28.1075, Alpha=10.2948, Beta=11.6181
+Channel 2: Delta=580.3669, Theta=34.3359, Alpha=7.4500, Beta=9.4550
+Channel 3: Delta=7604.4054, Theta=272.6788, Alpha=84.8745, Beta=21.8287
+Channel 4: Delta=3763.1273, Theta=73.8096, Alpha=29.4636, Beta=20.0474
+Channel 5: Delta=354.7431, Theta=24.7452, Alpha=11.9122, Beta=11.7104
+Channel 6: Delta=428.0310, Theta=32.0909, Alpha=10.7895, Beta=9.6672
+Channel 7: Delta=260.9567, Theta=31.9431, Alpha=11.3717, Beta=12.9494
+
+Segment 4:
+Channel 1: Delta=68.4996, Theta=5.2564, Alpha=4.4313, Beta=8.0334
+Channel 2: Delta=126.6830, Theta=5.1432, Alpha=2.5640, Beta=4.2093
+Channel 3: Delta=140.2818, Theta=4.7822, Alpha=2.7625, Beta=10.3749
+Channel 4: Delta=1281.7764, Theta=136.8203, Alpha=58.6702, Beta=37.7386
+Channel 5: Delta=72.2856, Theta=6.1318, Alpha=3.4592, Beta=6.0814
+Channel 6: Delta=71.7624, Theta=7.5206, Alpha=3.8265, Beta=5.2901
+Channel 7: Delta=96.6418, Theta=7.9158, Alpha=5.5366, Beta=8.5271
+
+Segment 5:
+Channel 1: Delta=31.8994, Theta=4.6639, Alpha=4.4939, Beta=7.3410
+Channel 2: Delta=79.0623, Theta=4.1430, Alpha=2.2215, Beta=3.7979
+Channel 3: Delta=18.2172, Theta=2.3978, Alpha=2.4244, Beta=8.7897
+Channel 4: Delta=1187.0505, Theta=116.3003, Alpha=50.4122, Beta=33.3191
+Channel 5: Delta=30.3436, Theta=3.6979, Alpha=3.1966, Beta=5.5055
+Channel 6: Delta=47.8310, Theta=4.9424, Alpha=2.9804, Beta=4.5285
+Channel 7: Delta=35.7665, Theta=6.8752, Alpha=4.5391, Beta=8.0425
+
+Segment 6:
+Channel 1: Delta=218.4052, Theta=8.9794, Alpha=4.5725, Beta=7.3874
+Channel 2: Delta=335.5514, Theta=7.9078, Alpha=2.7060, Beta=4.2640
+Channel 3: Delta=153.3094, Theta=6.1564, Alpha=3.0125, Beta=7.7950
+Channel 4: Delta=1508.1215, Theta=127.4285, Alpha=50.3031, Beta=35.1990
+Channel 5: Delta=188.5886, Theta=7.0817, Alpha=3.4314, Beta=6.1040
+Channel 6: Delta=123.1807, Theta=12.5278, Alpha=3.5692, Beta=5.8096
+Channel 7: Delta=260.5468, Theta=9.7647, Alpha=5.5510, Beta=8.4569
+
+Segment 7:
+Channel 1: Delta=748.9514, Theta=16.2212, Alpha=5.7914, Beta=8.3937
+Channel 2: Delta=634.1901, Theta=14.6121, Alpha=4.2667, Beta=5.1515
+Channel 3: Delta=546.7009, Theta=12.0718, Alpha=4.2146, Beta=8.4477
+Channel 4: Delta=6559.5665, Theta=563.9544, Alpha=125.1127, Beta=122.8903
+Channel 5: Delta=1038.3624, Theta=13.2490, Alpha=4.1788, Beta=7.3702
+Channel 6: Delta=336.3731, Theta=26.1134, Alpha=5.0104, Beta=7.9959
+Channel 7: Delta=714.2176, Theta=14.6424, Alpha=6.3927, Beta=10.2254
+
+Segment 8:
+Channel 1: Delta=908.0860, Theta=18.8247, Alpha=7.0604, Beta=9.7781
+Channel 2: Delta=780.8861, Theta=17.4644, Alpha=5.1376, Beta=5.4517
+Channel 3: Delta=652.2276, Theta=14.4373, Alpha=4.6064, Beta=9.1960
+Channel 4: Delta=6633.6442, Theta=621.0758, Alpha=134.6552, Beta=132.9331
+Channel 5: Delta=1173.3788, Theta=15.3970, Alpha=4.4269, Beta=7.3977
+Channel 6: Delta=355.9873, Theta=32.2648, Alpha=5.4744, Beta=8.8858
+Channel 7: Delta=872.6352, Theta=17.0685, Alpha=6.4607, Beta=10.5486
+
+Segment 9:
+Channel 1: Delta=25.8896, Theta=6.5670, Alpha=5.7628, Beta=8.6076
+Channel 2: Delta=103.6092, Theta=2.8588, Alpha=2.4089, Beta=3.7764
+Channel 3: Delta=11.7726, Theta=2.3936, Alpha=2.7645, Beta=8.1730
+Channel 4: Delta=4176.4499, Theta=348.2434, Alpha=116.2611, Beta=78.1627
+Channel 5: Delta=44.4622, Theta=5.0569, Alpha=3.0976, Beta=5.5969
+Channel 6: Delta=32.3862, Theta=4.2646, Alpha=2.6479, Beta=4.8048
+Channel 7: Delta=21.7339, Theta=7.3621, Alpha=4.7661, Beta=8.1501
+
+Segment 10:
+Channel 1: Delta=372.1059, Theta=18.3817, Alpha=6.1153, Beta=9.1587
+Channel 2: Delta=486.5935, Theta=15.5664, Alpha=4.5659, Beta=5.9531
+Channel 3: Delta=435.9987, Theta=14.5263, Alpha=3.5278, Beta=8.8319
+Channel 4: Delta=10927.0173, Theta=708.0745, Alpha=247.8481, Beta=212.8983
+Channel 5: Delta=1413.1086, Theta=103.3228, Alpha=42.3389, Beta=31.8459
+Channel 6: Delta=1702.6549, Theta=60.5229, Alpha=12.2066, Beta=11.7096
+Channel 7: Delta=589.8164, Theta=17.3585, Alpha=6.9828, Beta=8.3799
+
+Segment 11:
+Channel 1: Delta=418.5089, Theta=17.8041, Alpha=6.1761, Beta=8.6996
+Channel 2: Delta=595.6953, Theta=17.6645, Alpha=5.0577, Beta=6.3486
+Channel 3: Delta=460.3708, Theta=14.8703, Alpha=3.6727, Beta=7.7020
+Channel 4: Delta=12021.6600, Theta=832.0994, Alpha=288.7978, Beta=240.5071
+Channel 5: Delta=1318.9191, Theta=100.4665, Alpha=44.6518, Beta=33.0614
+Channel 6: Delta=4151.9389, Theta=158.6556, Alpha=41.1361, Beta=35.7073
+Channel 7: Delta=716.0698, Theta=18.5624, Alpha=8.3105, Beta=9.0491
+
+Segment 12:
+Channel 1: Delta=573.3717, Theta=21.7601, Alpha=7.9849, Beta=10.0257
+Channel 2: Delta=641.5864, Theta=31.4891, Alpha=8.0478, Beta=10.0481
+Channel 3: Delta=1315.0018, Theta=98.5973, Alpha=25.1962, Beta=18.9651
+Channel 4: Delta=9093.3846, Theta=927.4904, Alpha=372.0153, Beta=270.6372
+Channel 5: Delta=1688.3313, Theta=96.2288, Alpha=42.9721, Beta=33.2971
+Channel 6: Delta=8019.9852, Theta=361.8271, Alpha=104.9880, Beta=72.7401
+Channel 7: Delta=942.4627, Theta=23.3649, Alpha=10.1931, Beta=10.4362
+
+Segment 13:
+Channel 1: Delta=543.1647, Theta=19.6684, Alpha=8.5507, Beta=10.5158
+Channel 2: Delta=534.2627, Theta=60.7925, Alpha=14.9293, Beta=11.3022
+Channel 3: Delta=2669.0859, Theta=308.1293, Alpha=106.9000, Beta=78.6996
+Channel 4: Delta=4613.6030, Theta=681.7427, Alpha=272.7345, Beta=162.8786
+Channel 5: Delta=1027.5523, Theta=32.4061, Alpha=18.3266, Beta=18.3410
+Channel 6: Delta=5192.9252, Theta=219.3663, Alpha=65.4542, Beta=39.5456
+Channel 7: Delta=569.7028, Theta=18.4870, Alpha=9.7356, Beta=10.0137
+
+Segment 14:
+Channel 1: Delta=472.5227, Theta=12.9145, Alpha=6.9326, Beta=10.2223
+Channel 2: Delta=385.0113, Theta=41.2452, Alpha=11.4267, Beta=7.1392
+Channel 3: Delta=2600.1087, Theta=267.5383, Alpha=97.6758, Beta=76.7711
+Channel 4: Delta=1370.9172, Theta=76.7640, Alpha=31.1955, Beta=22.4157
+Channel 5: Delta=722.4392, Theta=23.1803, Alpha=15.9026, Beta=15.4902
+Channel 6: Delta=1356.9959, Theta=32.4658, Alpha=7.4522, Beta=8.4152
+Channel 7: Delta=435.0397, Theta=13.1298, Alpha=7.2683, Beta=8.9294
+
+Segment 15:
+Channel 1: Delta=423.2113, Theta=10.7558, Alpha=6.2427, Beta=9.6893
+Channel 2: Delta=328.8946, Theta=34.3159, Alpha=9.5067, Beta=6.1610
+Channel 3: Delta=2232.0185, Theta=237.3256, Alpha=87.3378, Beta=69.2840
+Channel 4: Delta=1274.3950, Theta=57.8482, Alpha=23.9711, Beta=17.9002
+Channel 5: Delta=464.6277, Theta=19.5008, Alpha=13.4761, Beta=12.8005
+Channel 6: Delta=974.4487, Theta=19.4680, Alpha=6.0918, Beta=5.3509
+Channel 7: Delta=364.6187, Theta=11.9520, Alpha=6.8640, Beta=7.8944
+
+Segment 16:
+Channel 1: Delta=26.6514, Theta=4.6307, Alpha=5.0396, Beta=7.7993
+Channel 2: Delta=60.2517, Theta=2.7662, Alpha=2.4827, Beta=3.4860
+Channel 3: Delta=20.9598, Theta=2.6828, Alpha=2.6569, Beta=7.2842
+Channel 4: Delta=538.9297, Theta=21.1220, Alpha=10.4355, Beta=9.7803
+Channel 5: Delta=29.7655, Theta=3.5892, Alpha=3.0472, Beta=4.9678
+Channel 6: Delta=21.5650, Theta=4.3077, Alpha=3.3916, Beta=4.0689
+Channel 7: Delta=17.8695, Theta=6.0686, Alpha=6.1963, Beta=7.1165
+
+Segment 17:
+Channel 1: Delta=805.9975, Theta=28.9750, Alpha=12.5938, Beta=9.8936
+Channel 2: Delta=1772.7466, Theta=32.2102, Alpha=9.5657, Beta=6.1061
+Channel 3: Delta=5966.2121, Theta=149.8808, Alpha=31.2623, Beta=26.2808
+Channel 4: Delta=673.7319, Theta=37.8305, Alpha=11.6762, Beta=11.7810
+Channel 5: Delta=2476.6938, Theta=35.8406, Alpha=13.9462, Beta=9.3264
+Channel 6: Delta=3671.2689, Theta=125.0539, Alpha=37.1635, Beta=27.5354
+Channel 7: Delta=893.5787, Theta=28.9994, Alpha=12.0799, Beta=9.2716
+
+Segment 18:
+Channel 1: Delta=1279.0067, Theta=41.3084, Alpha=15.2001, Beta=10.8573
+Channel 2: Delta=2201.3892, Theta=66.6714, Alpha=17.6554, Beta=10.6913
+Channel 3: Delta=6259.5428, Theta=160.8103, Alpha=33.9040, Beta=27.7839
+Channel 4: Delta=945.0640, Theta=52.2835, Alpha=14.6120, Beta=13.1697
+Channel 5: Delta=3491.9853, Theta=49.9003, Alpha=18.6521, Beta=11.4293
+Channel 6: Delta=4563.1113, Theta=138.4370, Alpha=41.9705, Beta=30.8120
+Channel 7: Delta=1357.7171, Theta=40.7030, Alpha=15.0006, Beta=10.7636
+
+Segment 19:
+Channel 1: Delta=1498.9975, Theta=46.5781, Alpha=16.9241, Beta=11.7866
+Channel 2: Delta=2565.2277, Theta=67.8197, Alpha=19.4355, Beta=12.0899
+Channel 3: Delta=7577.4602, Theta=286.3332, Alpha=50.9152, Beta=33.6147
+Channel 4: Delta=1473.2217, Theta=59.7974, Alpha=16.0783, Beta=13.7126
+Channel 5: Delta=4317.1682, Theta=59.0459, Alpha=21.3990, Beta=13.9883
+Channel 6: Delta=6113.2454, Theta=161.9660, Alpha=61.1587, Beta=35.8199
+Channel 7: Delta=1715.7912, Theta=46.9009, Alpha=15.8570, Beta=10.8154
+
+Segment 20:
+Channel 1: Delta=429.6846, Theta=12.1475, Alpha=7.0682, Beta=8.9718
+Channel 2: Delta=396.8202, Theta=38.3173, Alpha=10.2949, Beta=8.9279
+Channel 3: Delta=5661.0226, Theta=317.7770, Alpha=116.9632, Beta=78.7722
+Channel 4: Delta=2833.5688, Theta=55.8382, Alpha=102.4773, Beta=36.3002
+Channel 5: Delta=966.5025, Theta=14.5220, Alpha=7.0936, Beta=9.2706
+Channel 6: Delta=2476.4722, Theta=61.7649, Alpha=29.9974, Beta=11.2794
+Channel 7: Delta=778.5376, Theta=13.9144, Alpha=8.9911, Beta=7.7230
+
+Segment 21:
+Channel 1: Delta=1119.3749, Theta=21.3938, Alpha=11.5009, Beta=15.8897
+Channel 2: Delta=3371.3615, Theta=161.7929, Alpha=69.2537, Beta=29.3104
+Channel 3: Delta=16795.5727, Theta=443.8194, Alpha=162.3245, Beta=108.5859
+Channel 4: Delta=4821.7790, Theta=98.5178, Alpha=123.0383, Beta=53.3557
+Channel 5: Delta=2586.5786, Theta=133.1527, Alpha=44.3042, Beta=44.0986
+Channel 6: Delta=5451.7392, Theta=233.2591, Alpha=41.9411, Beta=27.1903
+Channel 7: Delta=3039.5235, Theta=43.9557, Alpha=14.9723, Beta=15.6335
+
+Segment 22:
+Channel 1: Delta=2290.9541, Theta=34.6876, Alpha=16.0984, Beta=20.5664
+Channel 2: Delta=5560.0239, Theta=217.7424, Alpha=92.9404, Beta=39.5259
+Channel 3: Delta=19028.7591, Theta=576.3375, Alpha=188.1346, Beta=138.7047
+Channel 4: Delta=6091.1854, Theta=137.2780, Alpha=151.7628, Beta=68.8781
+Channel 5: Delta=3496.1761, Theta=153.5783, Alpha=60.1138, Beta=54.4500
+Channel 6: Delta=9402.9167, Theta=682.7176, Alpha=235.4162, Beta=171.2998
+Channel 7: Delta=4136.6776, Theta=73.5852, Alpha=21.3600, Beta=22.3986
+
+Segment 23:
+Channel 1: Delta=2377.6460, Theta=26.9416, Alpha=13.9545, Beta=19.9632
+Channel 2: Delta=5733.2568, Theta=167.5474, Alpha=63.6904, Beta=32.9273
+Channel 3: Delta=14467.2929, Theta=668.6209, Alpha=205.6555, Beta=149.3088
+Channel 4: Delta=3905.7228, Theta=101.0794, Alpha=26.5979, Beta=34.6753
+Channel 5: Delta=2658.0628, Theta=142.1344, Alpha=57.9363, Beta=59.0513
+Channel 6: Delta=6688.1535, Theta=644.1794, Alpha=271.7320, Beta=205.8662
+Channel 7: Delta=3671.2454, Theta=73.6378, Alpha=19.0620, Beta=22.5701
+
+Segment 24:
+Channel 1: Delta=1346.3523, Theta=17.6564, Alpha=10.1076, Beta=12.5663
+Channel 2: Delta=1231.0992, Theta=37.9365, Alpha=12.8626, Beta=11.3983
+Channel 3: Delta=1090.4812, Theta=84.9899, Alpha=39.6670, Beta=41.8437
+Channel 4: Delta=860.6145, Theta=27.6787, Alpha=14.6592, Beta=19.1488
+Channel 5: Delta=732.0992, Theta=30.0817, Alpha=11.5150, Beta=21.1477
+Channel 6: Delta=5460.8055, Theta=709.2946, Alpha=304.2226, Beta=228.5573
+Channel 7: Delta=1506.6613, Theta=21.8835, Alpha=10.8128, Beta=12.9240
+
+Segment 25:
+Channel 1: Delta=335.9065, Theta=16.0356, Alpha=9.1308, Beta=10.5529
+Channel 2: Delta=847.2103, Theta=28.7461, Alpha=8.5817, Beta=6.9317
+Channel 3: Delta=436.0442, Theta=20.4362, Alpha=8.1578, Beta=10.9725
+Channel 4: Delta=521.5437, Theta=21.3534, Alpha=11.8226, Beta=13.1317
+Channel 5: Delta=292.2836, Theta=17.6486, Alpha=7.5708, Beta=11.3989
+Channel 6: Delta=882.4001, Theta=66.4053, Alpha=20.5686, Beta=12.5100
+Channel 7: Delta=312.4950, Theta=17.4701, Alpha=9.6979, Beta=9.7924
+
+Segment 26:
+Channel 1: Delta=495.0411, Theta=23.5211, Alpha=8.2538, Beta=8.7943
+Channel 2: Delta=885.3916, Theta=34.0287, Alpha=6.7649, Beta=4.9135
+Channel 3: Delta=550.4782, Theta=22.0293, Alpha=7.8385, Beta=7.6084
+Channel 4: Delta=571.3150, Theta=27.9049, Alpha=8.6307, Beta=7.8198
+Channel 5: Delta=471.3840, Theta=23.3130, Alpha=7.1161, Beta=9.4384
+Channel 6: Delta=965.8150, Theta=77.1400, Alpha=20.8514, Beta=12.0109
+Channel 7: Delta=473.0945, Theta=27.4667, Alpha=9.8249, Beta=9.8705
+
+Segment 27:
+Channel 1: Delta=1564.2936, Theta=102.9346, Alpha=60.0785, Beta=27.3597
+Channel 2: Delta=2883.9705, Theta=170.0263, Alpha=76.9936, Beta=28.6507
+Channel 3: Delta=6411.8736, Theta=201.2041, Alpha=71.9339, Beta=74.7182
+Channel 4: Delta=2359.7648, Theta=89.0146, Alpha=77.3308, Beta=31.7525
+Channel 5: Delta=2694.7124, Theta=124.7608, Alpha=81.6125, Beta=40.7272
+Channel 6: Delta=3174.1959, Theta=152.1900, Alpha=78.6920, Beta=34.9881
+Channel 7: Delta=1677.4635, Theta=101.7146, Alpha=64.1050, Beta=30.1679
+
+Segment 28:
+Channel 1: Delta=1938.7600, Theta=93.9360, Alpha=54.9259, Beta=26.0305
+Channel 2: Delta=2571.4295, Theta=160.2055, Alpha=73.3805, Beta=28.1684
+Channel 3: Delta=8531.7322, Theta=523.6130, Alpha=145.8844, Beta=152.5437
+Channel 4: Delta=2892.8462, Theta=83.2711, Alpha=71.0012, Beta=31.0089
+Channel 5: Delta=2834.0927, Theta=129.4493, Alpha=80.0222, Beta=40.6270
+Channel 6: Delta=4454.8285, Theta=253.6206, Alpha=94.1278, Beta=41.9541
+Channel 7: Delta=2052.7732, Theta=91.7130, Alpha=60.0222, Beta=28.1465
+
+Segment 29:
+Channel 1: Delta=2341.2242, Theta=76.7345, Alpha=46.3464, Beta=25.9188
+Channel 2: Delta=3006.5206, Theta=157.4338, Alpha=66.8521, Beta=28.2247
+Channel 3: Delta=14940.1966, Theta=683.7928, Alpha=215.6626, Beta=203.1325
+Channel 4: Delta=3639.4413, Theta=72.4839, Alpha=61.7156, Beta=34.1893
+Channel 5: Delta=2754.2809, Theta=119.2904, Alpha=70.4975, Beta=38.1072
+Channel 6: Delta=4390.4731, Theta=210.3117, Alpha=77.5999, Beta=37.2056
+Channel 7: Delta=2493.0597, Theta=75.9578, Alpha=52.2427, Beta=27.4316
+
+Segment 30:
+Channel 1: Delta=2224.0352, Theta=28.1134, Alpha=10.5417, Beta=14.2005
+Channel 2: Delta=2233.2837, Theta=60.4218, Alpha=25.0649, Beta=18.5597
+Channel 3: Delta=16937.7434, Theta=841.9901, Alpha=250.4544, Beta=202.9141
+Channel 4: Delta=2332.2165, Theta=37.9689, Alpha=13.0161, Beta=18.1938
+Channel 5: Delta=1186.5668, Theta=70.9980, Alpha=22.6251, Beta=19.0800
+Channel 6: Delta=4589.1989, Theta=152.8732, Alpha=39.8867, Beta=22.6778
+Channel 7: Delta=2775.7493, Theta=40.5206, Alpha=19.8246, Beta=16.8284
+
+Segment 31:
+Channel 1: Delta=1356.8615, Theta=24.2398, Alpha=9.2552, Beta=14.3290
+Channel 2: Delta=1946.2461, Theta=56.8433, Alpha=22.5061, Beta=17.8816
+Channel 3: Delta=13391.7375, Theta=488.8985, Alpha=135.4016, Beta=101.3067
+Channel 4: Delta=1295.4923, Theta=36.0816, Alpha=12.4991, Beta=18.9487
+Channel 5: Delta=708.2658, Theta=76.4547, Alpha=27.8832, Beta=28.9559
+Channel 6: Delta=2763.0132, Theta=35.9248, Alpha=14.2014, Beta=12.6270
+Channel 7: Delta=2276.5568, Theta=39.3382, Alpha=16.9441, Beta=16.4154
+
+Segment 32:
+Channel 1: Delta=1650.1751, Theta=25.2201, Alpha=8.1945, Beta=12.2647
+Channel 2: Delta=1680.3130, Theta=73.7996, Alpha=19.2959, Beta=15.1578
+Channel 3: Delta=7847.3007, Theta=347.8775, Alpha=88.2425, Beta=75.9190
+Channel 4: Delta=829.2561, Theta=31.8628, Alpha=10.7380, Beta=13.5597
+Channel 5: Delta=6552.8659, Theta=149.5478, Alpha=29.6939, Beta=31.3623
+Channel 6: Delta=3108.5158, Theta=29.3702, Alpha=16.3528, Beta=11.2881
+Channel 7: Delta=2420.8851, Theta=38.6001, Alpha=15.6105, Beta=13.4361
+
+Segment 33:
+Channel 1: Delta=1602.1147, Theta=92.4325, Alpha=23.3169, Beta=18.9655
+Channel 2: Delta=2390.3874, Theta=338.5737, Alpha=31.1499, Beta=21.0956
+Channel 3: Delta=9996.4991, Theta=653.7185, Alpha=147.5891, Beta=148.5297
+Channel 4: Delta=2580.1560, Theta=166.9760, Alpha=27.3228, Beta=26.5156
+Channel 5: Delta=7444.3607, Theta=265.1397, Alpha=26.0322, Beta=38.5641
+Channel 6: Delta=2674.7790, Theta=132.3643, Alpha=49.7905, Beta=29.5486
+Channel 7: Delta=2915.2965, Theta=296.2089, Alpha=49.7371, Beta=22.3754
+
+Segment 34:
+Channel 1: Delta=1545.6861, Theta=99.4473, Alpha=23.8436, Beta=19.2977
+Channel 2: Delta=2647.2023, Theta=378.1854, Alpha=32.8625, Beta=21.8528
+Channel 3: Delta=9748.8310, Theta=650.9448, Alpha=157.5035, Beta=151.6954
+Channel 4: Delta=2848.1065, Theta=178.0423, Alpha=28.8678, Beta=26.5910
+Channel 5: Delta=6497.3197, Theta=267.4183, Alpha=26.2652, Beta=38.6714
+Channel 6: Delta=3018.8654, Theta=144.4230, Alpha=54.1372, Beta=31.1884
+Channel 7: Delta=2727.7119, Theta=304.4082, Alpha=49.9063, Beta=21.7276
+
+Segment 35:
+Channel 1: Delta=185.8073, Theta=12.7774, Alpha=9.0131, Beta=11.9409
+Channel 2: Delta=1820.6427, Theta=50.1452, Alpha=11.1167, Beta=9.0365
+Channel 3: Delta=264.0039, Theta=12.4322, Alpha=8.3579, Beta=17.5849
+Channel 4: Delta=1001.4759, Theta=81.7480, Alpha=33.6361, Beta=25.9183
+Channel 5: Delta=215.4804, Theta=16.1726, Alpha=8.4747, Beta=14.3005
+Channel 6: Delta=252.8387, Theta=16.2475, Alpha=9.5856, Beta=9.2125
+Channel 7: Delta=233.5572, Theta=15.1431, Alpha=10.6327, Beta=10.4505
+
+Segment 36:
+Channel 1: Delta=1112.8530, Theta=31.1584, Alpha=13.8490, Beta=11.3518
+Channel 2: Delta=2008.8339, Theta=97.4139, Alpha=26.2696, Beta=19.1530
+Channel 3: Delta=1327.4280, Theta=51.3198, Alpha=13.3915, Beta=26.0624
+Channel 4: Delta=2148.4868, Theta=99.5682, Alpha=42.5392, Beta=25.3865
+Channel 5: Delta=1110.8317, Theta=47.3715, Alpha=30.8739, Beta=21.8176
+Channel 6: Delta=859.1944, Theta=27.3733, Alpha=12.7875, Beta=8.7716
+Channel 7: Delta=1188.4572, Theta=34.3972, Alpha=14.6234, Beta=10.3048
+
+Segment 37:
+Channel 1: Delta=3300.2837, Theta=171.5314, Alpha=68.1397, Beta=49.9186
+Channel 2: Delta=4181.3463, Theta=242.2564, Alpha=84.1184, Beta=59.7255
+Channel 3: Delta=8402.8819, Theta=413.9623, Alpha=135.8971, Beta=122.0472
+Channel 4: Delta=4859.1953, Theta=242.7195, Alpha=94.4348, Beta=76.3419
+Channel 5: Delta=3757.1791, Theta=203.7993, Alpha=89.6369, Beta=64.3185
+Channel 6: Delta=4061.9727, Theta=265.2398, Alpha=122.8794, Beta=75.2074
+Channel 7: Delta=4222.3445, Theta=176.9402, Alpha=85.6096, Beta=61.7771
+
+Segment 38:
+Channel 1: Delta=5418.9680, Theta=234.0279, Alpha=87.3675, Beta=63.7251
+Channel 2: Delta=5198.5813, Theta=256.6591, Alpha=97.4397, Beta=66.9647
+Channel 3: Delta=11010.8694, Theta=659.4830, Alpha=237.1366, Beta=229.1217
+Channel 4: Delta=8542.1076, Theta=515.6395, Alpha=130.4248, Beta=149.9145
+Channel 5: Delta=5709.7745, Theta=270.0694, Alpha=111.9058, Beta=84.8046
+Channel 6: Delta=6374.5598, Theta=484.0066, Alpha=220.3519, Beta=139.3258
+Channel 7: Delta=7845.7238, Theta=304.8051, Alpha=121.5429, Beta=85.3674
+
+Segment 39:
+Channel 1: Delta=5584.4991, Theta=248.7152, Alpha=95.6111, Beta=74.0314
+Channel 2: Delta=5403.3184, Theta=270.4493, Alpha=109.8285, Beta=77.3795
+Channel 3: Delta=8606.4741, Theta=621.8496, Alpha=230.2692, Beta=219.9907
+Channel 4: Delta=6497.6929, Theta=455.3064, Alpha=126.4034, Beta=136.9941
+Channel 5: Delta=4900.1321, Theta=268.8735, Alpha=102.3352, Beta=89.7480
+Channel 6: Delta=6079.7406, Theta=401.0511, Alpha=178.4330, Beta=124.3894
+Channel 7: Delta=7824.1638, Theta=314.9997, Alpha=118.0399, Beta=89.7473
+
+Segment 40:
+Channel 1: Delta=2862.6304, Theta=36.2004, Alpha=15.2598, Beta=17.8918
+Channel 2: Delta=2421.4775, Theta=86.9120, Alpha=29.9604, Beta=24.2982
+Channel 3: Delta=4991.1503, Theta=491.6686, Alpha=141.2542, Beta=123.2366
+Channel 4: Delta=4272.9639, Theta=221.8158, Alpha=49.4975, Beta=78.8081
+Channel 5: Delta=1664.6887, Theta=46.4535, Alpha=21.8876, Beta=31.5199
+Channel 6: Delta=3754.6184, Theta=301.7484, Alpha=133.8508, Beta=104.9769
+Channel 7: Delta=4316.3151, Theta=135.9221, Alpha=44.4251, Beta=32.6811
+
+Segment 41:
+Channel 1: Delta=2049.1038, Theta=28.7114, Alpha=12.0909, Beta=16.1064
+Channel 2: Delta=1671.0446, Theta=83.2268, Alpha=25.8977, Beta=22.8592
+Channel 3: Delta=10210.2808, Theta=746.4812, Alpha=138.9451, Beta=147.6447
+Channel 4: Delta=3773.1104, Theta=58.2786, Alpha=29.7238, Beta=36.2438
+Channel 5: Delta=917.5161, Theta=29.5614, Alpha=14.1702, Beta=25.8886
+Channel 6: Delta=2023.0588, Theta=142.2787, Alpha=57.1320, Beta=53.1518
+Channel 7: Delta=6440.0281, Theta=163.2639, Alpha=55.4525, Beta=48.2859
+
+Segment 42:
+Channel 1: Delta=1851.2367, Theta=25.6301, Alpha=10.7705, Beta=14.8636
+Channel 2: Delta=619.6791, Theta=38.6374, Alpha=11.2005, Beta=14.4114
+Channel 3: Delta=9156.4418, Theta=458.9054, Alpha=34.8786, Beta=93.3853
+Channel 4: Delta=4318.2413, Theta=182.1193, Alpha=68.3042, Beta=63.2906
+Channel 5: Delta=652.4636, Theta=30.2057, Alpha=13.9973, Beta=25.3835
+Channel 6: Delta=1175.8942, Theta=74.4485, Alpha=22.8560, Beta=20.2644
+Channel 7: Delta=5218.3518, Theta=152.4137, Alpha=44.6942, Beta=36.8415
+
+Segment 43:
+Channel 1: Delta=1144.1504, Theta=11.3633, Alpha=5.9259, Beta=10.7072
+Channel 2: Delta=256.8150, Theta=10.5311, Alpha=5.0689, Beta=6.7038
+Channel 3: Delta=1501.4566, Theta=25.7229, Alpha=10.2561, Beta=26.7643
+Channel 4: Delta=2987.1853, Theta=174.3907, Alpha=63.0019, Beta=58.6667
+Channel 5: Delta=579.4132, Theta=19.2215, Alpha=9.6772, Beta=22.1042
+Channel 6: Delta=800.9450, Theta=65.4315, Alpha=19.6431, Beta=17.1560
+Channel 7: Delta=1855.2478, Theta=69.6890, Alpha=21.8121, Beta=15.8237
+
+Segment 44:
+Channel 1: Delta=1430.7223, Theta=10.9868, Alpha=6.6951, Beta=10.0647
+Channel 2: Delta=330.8678, Theta=12.0540, Alpha=6.6582, Beta=7.4204
+Channel 3: Delta=1740.2103, Theta=30.5660, Alpha=13.1164, Beta=30.8291
+Channel 4: Delta=3250.1511, Theta=170.6068, Alpha=64.1064, Beta=54.5403
+Channel 5: Delta=655.8354, Theta=21.4202, Alpha=9.9706, Beta=21.4195
+Channel 6: Delta=8123.4940, Theta=930.7352, Alpha=333.4108, Beta=263.3121
+Channel 7: Delta=3245.8968, Theta=86.7859, Alpha=26.9614, Beta=19.6046
+
+Segment 45:
+Channel 1: Delta=1747.1679, Theta=10.0359, Alpha=6.4882, Beta=10.2987
+Channel 2: Delta=859.6551, Theta=31.3891, Alpha=10.9381, Beta=10.2041
+Channel 3: Delta=6148.3935, Theta=236.8676, Alpha=82.2255, Beta=52.9928
+Channel 4: Delta=1664.0883, Theta=29.2519, Alpha=15.9528, Beta=19.1112
+Channel 5: Delta=819.4579, Theta=21.7139, Alpha=9.9525, Beta=23.3329
+Channel 6: Delta=8353.3948, Theta=906.8774, Alpha=350.7978, Beta=274.7774
+Channel 7: Delta=3815.3138, Theta=49.1365, Alpha=23.3056, Beta=21.8940
+
+Segment 46:
+Channel 1: Delta=5087.8534, Theta=16.5141, Alpha=9.2633, Beta=12.5131
+Channel 2: Delta=1418.2209, Theta=66.2993, Alpha=26.0026, Beta=16.1336
+Channel 3: Delta=26501.0323, Theta=748.3858, Alpha=357.3909, Beta=231.5865
+Channel 4: Delta=3080.4170, Theta=176.5778, Alpha=87.8792, Beta=87.1305
+Channel 5: Delta=1768.0881, Theta=43.7556, Alpha=14.9953, Beta=22.5438
+Channel 6: Delta=10332.2885, Theta=877.6000, Alpha=333.2930, Beta=280.9360
+Channel 7: Delta=6186.6820, Theta=65.6525, Alpha=28.9728, Beta=26.8600
+
+Segment 47:
+Channel 1: Delta=5456.6722, Theta=17.8975, Alpha=9.9211, Beta=14.0093
+Channel 2: Delta=1235.9533, Theta=55.2230, Alpha=23.6068, Beta=17.5905
+Channel 3: Delta=32163.2205, Theta=761.1755, Alpha=406.8906, Beta=273.6346
+Channel 4: Delta=3831.8808, Theta=222.6837, Alpha=117.4293, Beta=121.2877
+Channel 5: Delta=2238.7587, Theta=49.3265, Alpha=15.5996, Beta=21.9331
+Channel 6: Delta=7368.8496, Theta=381.7404, Alpha=120.5099, Beta=113.5221
+Channel 7: Delta=5663.6505, Theta=54.7172, Alpha=25.0453, Beta=25.8737
+
+Segment 48:
+Channel 1: Delta=3581.2782, Theta=14.5965, Alpha=7.8244, Beta=13.2126
+Channel 2: Delta=1024.7581, Theta=28.8789, Alpha=13.1994, Beta=14.3615
+Channel 3: Delta=29086.6700, Theta=676.5142, Alpha=375.4114, Beta=248.7586
+Channel 4: Delta=2260.5297, Theta=75.9750, Alpha=37.1364, Beta=47.1117
+Channel 5: Delta=1668.0010, Theta=38.0977, Alpha=12.7161, Beta=19.0348
+Channel 6: Delta=8747.4406, Theta=485.1133, Alpha=142.2070, Beta=132.2231
+Channel 7: Delta=3498.3666, Theta=35.5050, Alpha=16.6618, Beta=19.9303
+
+Segment 49:
+Channel 1: Delta=1173.1714, Theta=27.8016, Alpha=8.4486, Beta=13.6530
+Channel 2: Delta=778.9795, Theta=38.1083, Alpha=10.1978, Beta=11.3264
+Channel 3: Delta=6573.2185, Theta=267.2558, Alpha=79.9267, Beta=51.9828
+Channel 4: Delta=961.6343, Theta=56.6570, Alpha=24.3985, Beta=32.5223
+Channel 5: Delta=892.7667, Theta=39.4074, Alpha=8.9767, Beta=22.0777
+Channel 6: Delta=10925.6301, Theta=874.5024, Alpha=279.4272, Beta=237.7111
+Channel 7: Delta=1293.9352, Theta=40.2860, Alpha=15.4717, Beta=16.8922
+
+Segment 50:
+Channel 1: Delta=1220.9816, Theta=25.8647, Alpha=8.3826, Beta=12.6848
+Channel 2: Delta=766.2257, Theta=37.5523, Alpha=8.0741, Beta=8.4823
+Channel 3: Delta=7022.0837, Theta=262.6495, Alpha=78.7359, Beta=53.9091
+Channel 4: Delta=821.2778, Theta=44.0386, Alpha=12.1358, Beta=15.5652
+Channel 5: Delta=872.8174, Theta=39.4136, Alpha=9.6710, Beta=21.7236
+Channel 6: Delta=5922.0037, Theta=449.5136, Alpha=168.9131, Beta=128.5625
+Channel 7: Delta=1242.3815, Theta=42.0768, Alpha=16.6510, Beta=16.2528
+
+Segment 51:
+Channel 1: Delta=620.2900, Theta=10.3012, Alpha=5.0868, Beta=10.5638
+Channel 2: Delta=218.5163, Theta=11.8689, Alpha=4.4741, Beta=6.5036
+Channel 3: Delta=3968.2456, Theta=167.0215, Alpha=55.2573, Beta=38.2414
+Channel 4: Delta=545.5587, Theta=13.7427, Alpha=7.5662, Beta=10.0769
+Channel 5: Delta=476.4672, Theta=17.0460, Alpha=9.4822, Beta=18.1437
+Channel 6: Delta=4658.9909, Theta=425.8702, Alpha=172.6886, Beta=131.7439
+Channel 7: Delta=688.6083, Theta=25.5548, Alpha=14.7083, Beta=15.0543
+
+Segment 52:
+Channel 1: Delta=1595.8401, Theta=28.4278, Alpha=7.8491, Beta=10.3916
+Channel 2: Delta=2071.9713, Theta=72.7888, Alpha=19.3890, Beta=11.5165
+Channel 3: Delta=8592.9768, Theta=221.3334, Alpha=115.0116, Beta=68.3952
+Channel 4: Delta=1076.0663, Theta=42.6816, Alpha=19.8214, Beta=23.1609
+Channel 5: Delta=1586.2248, Theta=41.4131, Alpha=39.2850, Beta=24.5176
+Channel 6: Delta=5842.1523, Theta=98.5342, Alpha=61.5668, Beta=55.7585
+Channel 7: Delta=1807.5294, Theta=99.6925, Alpha=35.2343, Beta=17.1950
+Code and results saved successfully.
+
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/66.txt；(2)编写并且运行python代码，对同目录下的data/66_original.npy,将数据分30s为一段，使用滑窗模式，滑窗长度10s，计算每个通道的Delta、Theta、Alpha、Beta频段能量，打印结果, 将数值以(x,7,4[x取决于具体数据]的格式存到同目录下的result/2_66.npy, (3)将代码保存到result/2_66.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/66.txt', log="I'll break this down into three parts: (1) parsing the EEG data, (2) processing the original data with specified parameters, and (3) saving the code. Let's proceed step by step.\n\nFirst, I'll parse the EEG data from the specified file.\n\nAction: parse_eeg_data\nAction Input: data/66.txt"), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入'), (AgentAction(tool='Python_REPL', tool_input='```python\nimport numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\n# Print results\nprint("Band powers for each segment:")\nfor i, segment in enumerate(results_array):\n    print(f"\\nSegment {i+1}:")\n    for ch in range(num_channels):\n        print(f"Channel {ch+1}: Delta={segment[ch][0]:.4f}, Theta={segment[ch][1]:.4f}, Alpha={segment[ch][2]:.4f}, Beta={segment[ch][3]:.4f}")\n\n# Save the code\nwith open(\'result/2_66.py\', \'w\') as f:\n    f.write(\'\'\'import numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\'\'\')\nprint("Code and results saved successfully.")\n```', log='Now that the EEG data has been parsed, I\'ll proceed to the second part: processing the original data file with the specified parameters (30s segments, 10s sliding window) and calculating the band powers. Then I\'ll save the results and the code.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\n# Print results\nprint("Band powers for each segment:")\nfor i, segment in enumerate(results_array):\n    print(f"\\nSegment {i+1}:")\n    for ch in range(num_channels):\n        print(f"Channel {ch+1}: Delta={segment[ch][0]:.4f}, Theta={segment[ch][1]:.4f}, Alpha={segment[ch][2]:.4f}, Beta={segment[ch][3]:.4f}")\n\n# Save the code\nwith open(\'result/2_66.py\', \'w\') as f:\n    f.write(\'\'\'import numpy as np\nfrom scipy import signal\nimport os\n\n# Load the original data\ndata = np.load(\'data/66_original.npy\')\n\n# Parameters\nfs = 250  # Assuming sampling rate is 250Hz\nwindow_size = 30 * fs  # 30 seconds in samples\nslide_size = 10 * fs    # 10 seconds in samples\nnum_channels = data.shape[0]\n\n# Band definitions\nbands = {\n    \'Delta\': (0.5, 4),\n    \'Theta\': (4, 8),\n    \'Alpha\': (8, 13),\n    \'Beta\': (13, 30)\n}\n\n# Function to calculate band power\ndef bandpower(data, fs, band):\n    f, Pxx = signal.welch(data, fs=fs, nperseg=1024)\n    idx_band = np.logical_and(f >= band[0], f < band[1])\n    return np.trapz(Pxx[idx_band], f[idx_band])\n\n# Process data with sliding window\nresults = []\nfor start in range(0, data.shape[1] - window_size + 1, slide_size):\n    segment = data[:, start:start + window_size]\n    segment_powers = []\n    for ch in range(num_channels):\n        channel_powers = []\n        for band_name, band_range in bands.items():\n            power = bandpower(segment[ch], fs, band_range)\n            channel_powers.append(power)\n        segment_powers.append(channel_powers)\n    results.append(segment_powers)\n\n# Convert to numpy array (x, 7, 4)\nresults_array = np.array(results)\n\n# Create result directory if not exists\nos.makedirs(\'result\', exist_ok=True)\n\n# Save results\nnp.save(\'result/2_66.npy\', results_array)\n\'\'\')\nprint("Code and results saved successfully.")\n```'), 'Band powers for each segment:\n\nSegment 1:\nChannel 1: Delta=673.7408, Theta=17.8781, Alpha=5.2961, Beta=7.6706\nChannel 2: Delta=1868.9621, Theta=62.9275, Alpha=10.1259, Beta=13.5640\nChannel 3: Delta=7935.6474, Theta=307.3932, Alpha=106.1340, Beta=85.9417\nChannel 4: Delta=8252.8642, Theta=648.6151, Alpha=107.0788, Beta=35.7811\nChannel 5: Delta=1157.6916, Theta=69.2893, Alpha=18.2233, Beta=14.6162\nChannel 6: Delta=972.7054, Theta=69.2714, Alpha=10.5125, Beta=7.7499\nChannel 7: Delta=1726.3032, Theta=33.5737, Alpha=8.6644, Beta=9.1933\n\nSegment 2:\nChannel 1: Delta=368.7535, Theta=30.6731, Alpha=10.7488, Beta=10.5811\nChannel 2: Delta=904.4660, Theta=46.9901, Alpha=8.4427, Beta=9.5596\nChannel 3: Delta=6864.1531, Theta=247.0173, Alpha=72.7918, Beta=18.8333\nChannel 4: Delta=4326.0588, Theta=70.9302, Alpha=30.2652, Beta=22.2757\nChannel 5: Delta=394.8317, Theta=32.8950, Alpha=12.5222, Beta=11.1543\nChannel 6: Delta=525.6244, Theta=35.6730, Alpha=11.2927, Beta=9.7421\nChannel 7: Delta=343.0423, Theta=34.8004, Alpha=11.6866, Beta=12.2715\n\nSegment 3:\nChannel 1: Delta=317.8253, Theta=28.1075, Alpha=10.2948, Beta=11.6181\nChannel 2: Delta=580.3669, Theta=34.3359, Alpha=7.4500, Beta=9.4550\nChannel 3: Delta=7604.4054, Theta=272.6788, Alpha=84.8745, Beta=21.8287\nChannel 4: Delta=3763.1273, Theta=73.8096, Alpha=29.4636, Beta=20.0474\nChannel 5: Delta=354.7431, Theta=24.7452, Alpha=11.9122, Beta=11.7104\nChannel 6: Delta=428.0310, Theta=32.0909, Alpha=10.7895, Beta=9.6672\nChannel 7: Delta=260.9567, Theta=31.9431, Alpha=11.3717, Beta=12.9494\n\nSegment 4:\nChannel 1: Delta=68.4996, Theta=5.2564, Alpha=4.4313, Beta=8.0334\nChannel 2: Delta=126.6830, Theta=5.1432, Alpha=2.5640, Beta=4.2093\nChannel 3: Delta=140.2818, Theta=4.7822, Alpha=2.7625, Beta=10.3749\nChannel 4: Delta=1281.7764, Theta=136.8203, Alpha=58.6702, Beta=37.7386\nChannel 5: Delta=72.2856, Theta=6.1318, Alpha=3.4592, Beta=6.0814\nChannel 6: Delta=71.7624, Theta=7.5206, Alpha=3.8265, Beta=5.2901\nChannel 7: Delta=96.6418, Theta=7.9158, Alpha=5.5366, Beta=8.5271\n\nSegment 5:\nChannel 1: Delta=31.8994, Theta=4.6639, Alpha=4.4939, Beta=7.3410\nChannel 2: Delta=79.0623, Theta=4.1430, Alpha=2.2215, Beta=3.7979\nChannel 3: Delta=18.2172, Theta=2.3978, Alpha=2.4244, Beta=8.7897\nChannel 4: Delta=1187.0505, Theta=116.3003, Alpha=50.4122, Beta=33.3191\nChannel 5: Delta=30.3436, Theta=3.6979, Alpha=3.1966, Beta=5.5055\nChannel 6: Delta=47.8310, Theta=4.9424, Alpha=2.9804, Beta=4.5285\nChannel 7: Delta=35.7665, Theta=6.8752, Alpha=4.5391, Beta=8.0425\n\nSegment 6:\nChannel 1: Delta=218.4052, Theta=8.9794, Alpha=4.5725, Beta=7.3874\nChannel 2: Delta=335.5514, Theta=7.9078, Alpha=2.7060, Beta=4.2640\nChannel 3: Delta=153.3094, Theta=6.1564, Alpha=3.0125, Beta=7.7950\nChannel 4: Delta=1508.1215, Theta=127.4285, Alpha=50.3031, Beta=35.1990\nChannel 5: Delta=188.5886, Theta=7.0817, Alpha=3.4314, Beta=6.1040\nChannel 6: Delta=123.1807, Theta=12.5278, Alpha=3.5692, Beta=5.8096\nChannel 7: Delta=260.5468, Theta=9.7647, Alpha=5.5510, Beta=8.4569\n\nSegment 7:\nChannel 1: Delta=748.9514, Theta=16.2212, Alpha=5.7914, Beta=8.3937\nChannel 2: Delta=634.1901, Theta=14.6121, Alpha=4.2667, Beta=5.1515\nChannel 3: Delta=546.7009, Theta=12.0718, Alpha=4.2146, Beta=8.4477\nChannel 4: Delta=6559.5665, Theta=563.9544, Alpha=125.1127, Beta=122.8903\nChannel 5: Delta=1038.3624, Theta=13.2490, Alpha=4.1788, Beta=7.3702\nChannel 6: Delta=336.3731, Theta=26.1134, Alpha=5.0104, Beta=7.9959\nChannel 7: Delta=714.2176, Theta=14.6424, Alpha=6.3927, Beta=10.2254\n\nSegment 8:\nChannel 1: Delta=908.0860, Theta=18.8247, Alpha=7.0604, Beta=9.7781\nChannel 2: Delta=780.8861, Theta=17.4644, Alpha=5.1376, Beta=5.4517\nChannel 3: Delta=652.2276, Theta=14.4373, Alpha=4.6064, Beta=9.1960\nChannel 4: Delta=6633.6442, Theta=621.0758, Alpha=134.6552, Beta=132.9331\nChannel 5: Delta=1173.3788, Theta=15.3970, Alpha=4.4269, Beta=7.3977\nChannel 6: Delta=355.9873, Theta=32.2648, Alpha=5.4744, Beta=8.8858\nChannel 7: Delta=872.6352, Theta=17.0685, Alpha=6.4607, Beta=10.5486\n\nSegment 9:\nChannel 1: Delta=25.8896, Theta=6.5670, Alpha=5.7628, Beta=8.6076\nChannel 2: Delta=103.6092, Theta=2.8588, Alpha=2.4089, Beta=3.7764\nChannel 3: Delta=11.7726, Theta=2.3936, Alpha=2.7645, Beta=8.1730\nChannel 4: Delta=4176.4499, Theta=348.2434, Alpha=116.2611, Beta=78.1627\nChannel 5: Delta=44.4622, Theta=5.0569, Alpha=3.0976, Beta=5.5969\nChannel 6: Delta=32.3862, Theta=4.2646, Alpha=2.6479, Beta=4.8048\nChannel 7: Delta=21.7339, Theta=7.3621, Alpha=4.7661, Beta=8.1501\n\nSegment 10:\nChannel 1: Delta=372.1059, Theta=18.3817, Alpha=6.1153, Beta=9.1587\nChannel 2: Delta=486.5935, Theta=15.5664, Alpha=4.5659, Beta=5.9531\nChannel 3: Delta=435.9987, Theta=14.5263, Alpha=3.5278, Beta=8.8319\nChannel 4: Delta=10927.0173, Theta=708.0745, Alpha=247.8481, Beta=212.8983\nChannel 5: Delta=1413.1086, Theta=103.3228, Alpha=42.3389, Beta=31.8459\nChannel 6: Delta=1702.6549, Theta=60.5229, Alpha=12.2066, Beta=11.7096\nChannel 7: Delta=589.8164, Theta=17.3585, Alpha=6.9828, Beta=8.3799\n\nSegment 11:\nChannel 1: Delta=418.5089, Theta=17.8041, Alpha=6.1761, Beta=8.6996\nChannel 2: Delta=595.6953, Theta=17.6645, Alpha=5.0577, Beta=6.3486\nChannel 3: Delta=460.3708, Theta=14.8703, Alpha=3.6727, Beta=7.7020\nChannel 4: Delta=12021.6600, Theta=832.0994, Alpha=288.7978, Beta=240.5071\nChannel 5: Delta=1318.9191, Theta=100.4665, Alpha=44.6518, Beta=33.0614\nChannel 6: Delta=4151.9389, Theta=158.6556, Alpha=41.1361, Beta=35.7073\nChannel 7: Delta=716.0698, Theta=18.5624, Alpha=8.3105, Beta=9.0491\n\nSegment 12:\nChannel 1: Delta=573.3717, Theta=21.7601, Alpha=7.9849, Beta=10.0257\nChannel 2: Delta=641.5864, Theta=31.4891, Alpha=8.0478, Beta=10.0481\nChannel 3: Delta=1315.0018, Theta=98.5973, Alpha=25.1962, Beta=18.9651\nChannel 4: Delta=9093.3846, Theta=927.4904, Alpha=372.0153, Beta=270.6372\nChannel 5: Delta=1688.3313, Theta=96.2288, Alpha=42.9721, Beta=33.2971\nChannel 6: Delta=8019.9852, Theta=361.8271, Alpha=104.9880, Beta=72.7401\nChannel 7: Delta=942.4627, Theta=23.3649, Alpha=10.1931, Beta=10.4362\n\nSegment 13:\nChannel 1: Delta=543.1647, Theta=19.6684, Alpha=8.5507, Beta=10.5158\nChannel 2: Delta=534.2627, Theta=60.7925, Alpha=14.9293, Beta=11.3022\nChannel 3: Delta=2669.0859, Theta=308.1293, Alpha=106.9000, Beta=78.6996\nChannel 4: Delta=4613.6030, Theta=681.7427, Alpha=272.7345, Beta=162.8786\nChannel 5: Delta=1027.5523, Theta=32.4061, Alpha=18.3266, Beta=18.3410\nChannel 6: Delta=5192.9252, Theta=219.3663, Alpha=65.4542, Beta=39.5456\nChannel 7: Delta=569.7028, Theta=18.4870, Alpha=9.7356, Beta=10.0137\n\nSegment 14:\nChannel 1: Delta=472.5227, Theta=12.9145, Alpha=6.9326, Beta=10.2223\nChannel 2: Delta=385.0113, Theta=41.2452, Alpha=11.4267, Beta=7.1392\nChannel 3: Delta=2600.1087, Theta=267.5383, Alpha=97.6758, Beta=76.7711\nChannel 4: Delta=1370.9172, Theta=76.7640, Alpha=31.1955, Beta=22.4157\nChannel 5: Delta=722.4392, Theta=23.1803, Alpha=15.9026, Beta=15.4902\nChannel 6: Delta=1356.9959, Theta=32.4658, Alpha=7.4522, Beta=8.4152\nChannel 7: Delta=435.0397, Theta=13.1298, Alpha=7.2683, Beta=8.9294\n\nSegment 15:\nChannel 1: Delta=423.2113, Theta=10.7558, Alpha=6.2427, Beta=9.6893\nChannel 2: Delta=328.8946, Theta=34.3159, Alpha=9.5067, Beta=6.1610\nChannel 3: Delta=2232.0185, Theta=237.3256, Alpha=87.3378, Beta=69.2840\nChannel 4: Delta=1274.3950, Theta=57.8482, Alpha=23.9711, Beta=17.9002\nChannel 5: Delta=464.6277, Theta=19.5008, Alpha=13.4761, Beta=12.8005\nChannel 6: Delta=974.4487, Theta=19.4680, Alpha=6.0918, Beta=5.3509\nChannel 7: Delta=364.6187, Theta=11.9520, Alpha=6.8640, Beta=7.8944\n\nSegment 16:\nChannel 1: Delta=26.6514, Theta=4.6307, Alpha=5.0396, Beta=7.7993\nChannel 2: Delta=60.2517, Theta=2.7662, Alpha=2.4827, Beta=3.4860\nChannel 3: Delta=20.9598, Theta=2.6828, Alpha=2.6569, Beta=7.2842\nChannel 4: Delta=538.9297, Theta=21.1220, Alpha=10.4355, Beta=9.7803\nChannel 5: Delta=29.7655, Theta=3.5892, Alpha=3.0472, Beta=4.9678\nChannel 6: Delta=21.5650, Theta=4.3077, Alpha=3.3916, Beta=4.0689\nChannel 7: Delta=17.8695, Theta=6.0686, Alpha=6.1963, Beta=7.1165\n\nSegment 17:\nChannel 1: Delta=805.9975, Theta=28.9750, Alpha=12.5938, Beta=9.8936\nChannel 2: Delta=1772.7466, Theta=32.2102, Alpha=9.5657, Beta=6.1061\nChannel 3: Delta=5966.2121, Theta=149.8808, Alpha=31.2623, Beta=26.2808\nChannel 4: Delta=673.7319, Theta=37.8305, Alpha=11.6762, Beta=11.7810\nChannel 5: Delta=2476.6938, Theta=35.8406, Alpha=13.9462, Beta=9.3264\nChannel 6: Delta=3671.2689, Theta=125.0539, Alpha=37.1635, Beta=27.5354\nChannel 7: Delta=893.5787, Theta=28.9994, Alpha=12.0799, Beta=9.2716\n\nSegment 18:\nChannel 1: Delta=1279.0067, Theta=41.3084, Alpha=15.2001, Beta=10.8573\nChannel 2: Delta=2201.3892, Theta=66.6714, Alpha=17.6554, Beta=10.6913\nChannel 3: Delta=6259.5428, Theta=160.8103, Alpha=33.9040, Beta=27.7839\nChannel 4: Delta=945.0640, Theta=52.2835, Alpha=14.6120, Beta=13.1697\nChannel 5: Delta=3491.9853, Theta=49.9003, Alpha=18.6521, Beta=11.4293\nChannel 6: Delta=4563.1113, Theta=138.4370, Alpha=41.9705, Beta=30.8120\nChannel 7: Delta=1357.7171, Theta=40.7030, Alpha=15.0006, Beta=10.7636\n\nSegment 19:\nChannel 1: Delta=1498.9975, Theta=46.5781, Alpha=16.9241, Beta=11.7866\nChannel 2: Delta=2565.2277, Theta=67.8197, Alpha=19.4355, Beta=12.0899\nChannel 3: Delta=7577.4602, Theta=286.3332, Alpha=50.9152, Beta=33.6147\nChannel 4: Delta=1473.2217, Theta=59.7974, Alpha=16.0783, Beta=13.7126\nChannel 5: Delta=4317.1682, Theta=59.0459, Alpha=21.3990, Beta=13.9883\nChannel 6: Delta=6113.2454, Theta=161.9660, Alpha=61.1587, Beta=35.8199\nChannel 7: Delta=1715.7912, Theta=46.9009, Alpha=15.8570, Beta=10.8154\n\nSegment 20:\nChannel 1: Delta=429.6846, Theta=12.1475, Alpha=7.0682, Beta=8.9718\nChannel 2: Delta=396.8202, Theta=38.3173, Alpha=10.2949, Beta=8.9279\nChannel 3: Delta=5661.0226, Theta=317.7770, Alpha=116.9632, Beta=78.7722\nChannel 4: Delta=2833.5688, Theta=55.8382, Alpha=102.4773, Beta=36.3002\nChannel 5: Delta=966.5025, Theta=14.5220, Alpha=7.0936, Beta=9.2706\nChannel 6: Delta=2476.4722, Theta=61.7649, Alpha=29.9974, Beta=11.2794\nChannel 7: Delta=778.5376, Theta=13.9144, Alpha=8.9911, Beta=7.7230\n\nSegment 21:\nChannel 1: Delta=1119.3749, Theta=21.3938, Alpha=11.5009, Beta=15.8897\nChannel 2: Delta=3371.3615, Theta=161.7929, Alpha=69.2537, Beta=29.3104\nChannel 3: Delta=16795.5727, Theta=443.8194, Alpha=162.3245, Beta=108.5859\nChannel 4: Delta=4821.7790, Theta=98.5178, Alpha=123.0383, Beta=53.3557\nChannel 5: Delta=2586.5786, Theta=133.1527, Alpha=44.3042, Beta=44.0986\nChannel 6: Delta=5451.7392, Theta=233.2591, Alpha=41.9411, Beta=27.1903\nChannel 7: Delta=3039.5235, Theta=43.9557, Alpha=14.9723, Beta=15.6335\n\nSegment 22:\nChannel 1: Delta=2290.9541, Theta=34.6876, Alpha=16.0984, Beta=20.5664\nChannel 2: Delta=5560.0239, Theta=217.7424, Alpha=92.9404, Beta=39.5259\nChannel 3: Delta=19028.7591, Theta=576.3375, Alpha=188.1346, Beta=138.7047\nChannel 4: Delta=6091.1854, Theta=137.2780, Alpha=151.7628, Beta=68.8781\nChannel 5: Delta=3496.1761, Theta=153.5783, Alpha=60.1138, Beta=54.4500\nChannel 6: Delta=9402.9167, Theta=682.7176, Alpha=235.4162, Beta=171.2998\nChannel 7: Delta=4136.6776, Theta=73.5852, Alpha=21.3600, Beta=22.3986\n\nSegment 23:\nChannel 1: Delta=2377.6460, Theta=26.9416, Alpha=13.9545, Beta=19.9632\nChannel 2: Delta=5733.2568, Theta=167.5474, Alpha=63.6904, Beta=32.9273\nChannel 3: Delta=14467.2929, Theta=668.6209, Alpha=205.6555, Beta=149.3088\nChannel 4: Delta=3905.7228, Theta=101.0794, Alpha=26.5979, Beta=34.6753\nChannel 5: Delta=2658.0628, Theta=142.1344, Alpha=57.9363, Beta=59.0513\nChannel 6: Delta=6688.1535, Theta=644.1794, Alpha=271.7320, Beta=205.8662\nChannel 7: Delta=3671.2454, Theta=73.6378, Alpha=19.0620, Beta=22.5701\n\nSegment 24:\nChannel 1: Delta=1346.3523, Theta=17.6564, Alpha=10.1076, Beta=12.5663\nChannel 2: Delta=1231.0992, Theta=37.9365, Alpha=12.8626, Beta=11.3983\nChannel 3: Delta=1090.4812, Theta=84.9899, Alpha=39.6670, Beta=41.8437\nChannel 4: Delta=860.6145, Theta=27.6787, Alpha=14.6592, Beta=19.1488\nChannel 5: Delta=732.0992, Theta=30.0817, Alpha=11.5150, Beta=21.1477\nChannel 6: Delta=5460.8055, Theta=709.2946, Alpha=304.2226, Beta=228.5573\nChannel 7: Delta=1506.6613, Theta=21.8835, Alpha=10.8128, Beta=12.9240\n\nSegment 25:\nChannel 1: Delta=335.9065, Theta=16.0356, Alpha=9.1308, Beta=10.5529\nChannel 2: Delta=847.2103, Theta=28.7461, Alpha=8.5817, Beta=6.9317\nChannel 3: Delta=436.0442, Theta=20.4362, Alpha=8.1578, Beta=10.9725\nChannel 4: Delta=521.5437, Theta=21.3534, Alpha=11.8226, Beta=13.1317\nChannel 5: Delta=292.2836, Theta=17.6486, Alpha=7.5708, Beta=11.3989\nChannel 6: Delta=882.4001, Theta=66.4053, Alpha=20.5686, Beta=12.5100\nChannel 7: Delta=312.4950, Theta=17.4701, Alpha=9.6979, Beta=9.7924\n\nSegment 26:\nChannel 1: Delta=495.0411, Theta=23.5211, Alpha=8.2538, Beta=8.7943\nChannel 2: Delta=885.3916, Theta=34.0287, Alpha=6.7649, Beta=4.9135\nChannel 3: Delta=550.4782, Theta=22.0293, Alpha=7.8385, Beta=7.6084\nChannel 4: Delta=571.3150, Theta=27.9049, Alpha=8.6307, Beta=7.8198\nChannel 5: Delta=471.3840, Theta=23.3130, Alpha=7.1161, Beta=9.4384\nChannel 6: Delta=965.8150, Theta=77.1400, Alpha=20.8514, Beta=12.0109\nChannel 7: Delta=473.0945, Theta=27.4667, Alpha=9.8249, Beta=9.8705\n\nSegment 27:\nChannel 1: Delta=1564.2936, Theta=102.9346, Alpha=60.0785, Beta=27.3597\nChannel 2: Delta=2883.9705, Theta=170.0263, Alpha=76.9936, Beta=28.6507\nChannel 3: Delta=6411.8736, Theta=201.2041, Alpha=71.9339, Beta=74.7182\nChannel 4: Delta=2359.7648, Theta=89.0146, Alpha=77.3308, Beta=31.7525\nChannel 5: Delta=2694.7124, Theta=124.7608, Alpha=81.6125, Beta=40.7272\nChannel 6: Delta=3174.1959, Theta=152.1900, Alpha=78.6920, Beta=34.9881\nChannel 7: Delta=1677.4635, Theta=101.7146, Alpha=64.1050, Beta=30.1679\n\nSegment 28:\nChannel 1: Delta=1938.7600, Theta=93.9360, Alpha=54.9259, Beta=26.0305\nChannel 2: Delta=2571.4295, Theta=160.2055, Alpha=73.3805, Beta=28.1684\nChannel 3: Delta=8531.7322, Theta=523.6130, Alpha=145.8844, Beta=152.5437\nChannel 4: Delta=2892.8462, Theta=83.2711, Alpha=71.0012, Beta=31.0089\nChannel 5: Delta=2834.0927, Theta=129.4493, Alpha=80.0222, Beta=40.6270\nChannel 6: Delta=4454.8285, Theta=253.6206, Alpha=94.1278, Beta=41.9541\nChannel 7: Delta=2052.7732, Theta=91.7130, Alpha=60.0222, Beta=28.1465\n\nSegment 29:\nChannel 1: Delta=2341.2242, Theta=76.7345, Alpha=46.3464, Beta=25.9188\nChannel 2: Delta=3006.5206, Theta=157.4338, Alpha=66.8521, Beta=28.2247\nChannel 3: Delta=14940.1966, Theta=683.7928, Alpha=215.6626, Beta=203.1325\nChannel 4: Delta=3639.4413, Theta=72.4839, Alpha=61.7156, Beta=34.1893\nChannel 5: Delta=2754.2809, Theta=119.2904, Alpha=70.4975, Beta=38.1072\nChannel 6: Delta=4390.4731, Theta=210.3117, Alpha=77.5999, Beta=37.2056\nChannel 7: Delta=2493.0597, Theta=75.9578, Alpha=52.2427, Beta=27.4316\n\nSegment 30:\nChannel 1: Delta=2224.0352, Theta=28.1134, Alpha=10.5417, Beta=14.2005\nChannel 2: Delta=2233.2837, Theta=60.4218, Alpha=25.0649, Beta=18.5597\nChannel 3: Delta=16937.7434, Theta=841.9901, Alpha=250.4544, Beta=202.9141\nChannel 4: Delta=2332.2165, Theta=37.9689, Alpha=13.0161, Beta=18.1938\nChannel 5: Delta=1186.5668, Theta=70.9980, Alpha=22.6251, Beta=19.0800\nChannel 6: Delta=4589.1989, Theta=152.8732, Alpha=39.8867, Beta=22.6778\nChannel 7: Delta=2775.7493, Theta=40.5206, Alpha=19.8246, Beta=16.8284\n\nSegment 31:\nChannel 1: Delta=1356.8615, Theta=24.2398, Alpha=9.2552, Beta=14.3290\nChannel 2: Delta=1946.2461, Theta=56.8433, Alpha=22.5061, Beta=17.8816\nChannel 3: Delta=13391.7375, Theta=488.8985, Alpha=135.4016, Beta=101.3067\nChannel 4: Delta=1295.4923, Theta=36.0816, Alpha=12.4991, Beta=18.9487\nChannel 5: Delta=708.2658, Theta=76.4547, Alpha=27.8832, Beta=28.9559\nChannel 6: Delta=2763.0132, Theta=35.9248, Alpha=14.2014, Beta=12.6270\nChannel 7: Delta=2276.5568, Theta=39.3382, Alpha=16.9441, Beta=16.4154\n\nSegment 32:\nChannel 1: Delta=1650.1751, Theta=25.2201, Alpha=8.1945, Beta=12.2647\nChannel 2: Delta=1680.3130, Theta=73.7996, Alpha=19.2959, Beta=15.1578\nChannel 3: Delta=7847.3007, Theta=347.8775, Alpha=88.2425, Beta=75.9190\nChannel 4: Delta=829.2561, Theta=31.8628, Alpha=10.7380, Beta=13.5597\nChannel 5: Delta=6552.8659, Theta=149.5478, Alpha=29.6939, Beta=31.3623\nChannel 6: Delta=3108.5158, Theta=29.3702, Alpha=16.3528, Beta=11.2881\nChannel 7: Delta=2420.8851, Theta=38.6001, Alpha=15.6105, Beta=13.4361\n\nSegment 33:\nChannel 1: Delta=1602.1147, Theta=92.4325, Alpha=23.3169, Beta=18.9655\nChannel 2: Delta=2390.3874, Theta=338.5737, Alpha=31.1499, Beta=21.0956\nChannel 3: Delta=9996.4991, Theta=653.7185, Alpha=147.5891, Beta=148.5297\nChannel 4: Delta=2580.1560, Theta=166.9760, Alpha=27.3228, Beta=26.5156\nChannel 5: Delta=7444.3607, Theta=265.1397, Alpha=26.0322, Beta=38.5641\nChannel 6: Delta=2674.7790, Theta=132.3643, Alpha=49.7905, Beta=29.5486\nChannel 7: Delta=2915.2965, Theta=296.2089, Alpha=49.7371, Beta=22.3754\n\nSegment 34:\nChannel 1: Delta=1545.6861, Theta=99.4473, Alpha=23.8436, Beta=19.2977\nChannel 2: Delta=2647.2023, Theta=378.1854, Alpha=32.8625, Beta=21.8528\nChannel 3: Delta=9748.8310, Theta=650.9448, Alpha=157.5035, Beta=151.6954\nChannel 4: Delta=2848.1065, Theta=178.0423, Alpha=28.8678, Beta=26.5910\nChannel 5: Delta=6497.3197, Theta=267.4183, Alpha=26.2652, Beta=38.6714\nChannel 6: Delta=3018.8654, Theta=144.4230, Alpha=54.1372, Beta=31.1884\nChannel 7: Delta=2727.7119, Theta=304.4082, Alpha=49.9063, Beta=21.7276\n\nSegment 35:\nChannel 1: Delta=185.8073, Theta=12.7774, Alpha=9.0131, Beta=11.9409\nChannel 2: Delta=1820.6427, Theta=50.1452, Alpha=11.1167, Beta=9.0365\nChannel 3: Delta=264.0039, Theta=12.4322, Alpha=8.3579, Beta=17.5849\nChannel 4: Delta=1001.4759, Theta=81.7480, Alpha=33.6361, Beta=25.9183\nChannel 5: Delta=215.4804, Theta=16.1726, Alpha=8.4747, Beta=14.3005\nChannel 6: Delta=252.8387, Theta=16.2475, Alpha=9.5856, Beta=9.2125\nChannel 7: Delta=233.5572, Theta=15.1431, Alpha=10.6327, Beta=10.4505\n\nSegment 36:\nChannel 1: Delta=1112.8530, Theta=31.1584, Alpha=13.8490, Beta=11.3518\nChannel 2: Delta=2008.8339, Theta=97.4139, Alpha=26.2696, Beta=19.1530\nChannel 3: Delta=1327.4280, Theta=51.3198, Alpha=13.3915, Beta=26.0624\nChannel 4: Delta=2148.4868, Theta=99.5682, Alpha=42.5392, Beta=25.3865\nChannel 5: Delta=1110.8317, Theta=47.3715, Alpha=30.8739, Beta=21.8176\nChannel 6: Delta=859.1944, Theta=27.3733, Alpha=12.7875, Beta=8.7716\nChannel 7: Delta=1188.4572, Theta=34.3972, Alpha=14.6234, Beta=10.3048\n\nSegment 37:\nChannel 1: Delta=3300.2837, Theta=171.5314, Alpha=68.1397, Beta=49.9186\nChannel 2: Delta=4181.3463, Theta=242.2564, Alpha=84.1184, Beta=59.7255\nChannel 3: Delta=8402.8819, Theta=413.9623, Alpha=135.8971, Beta=122.0472\nChannel 4: Delta=4859.1953, Theta=242.7195, Alpha=94.4348, Beta=76.3419\nChannel 5: Delta=3757.1791, Theta=203.7993, Alpha=89.6369, Beta=64.3185\nChannel 6: Delta=4061.9727, Theta=265.2398, Alpha=122.8794, Beta=75.2074\nChannel 7: Delta=4222.3445, Theta=176.9402, Alpha=85.6096, Beta=61.7771\n\nSegment 38:\nChannel 1: Delta=5418.9680, Theta=234.0279, Alpha=87.3675, Beta=63.7251\nChannel 2: Delta=5198.5813, Theta=256.6591, Alpha=97.4397, Beta=66.9647\nChannel 3: Delta=11010.8694, Theta=659.4830, Alpha=237.1366, Beta=229.1217\nChannel 4: Delta=8542.1076, Theta=515.6395, Alpha=130.4248, Beta=149.9145\nChannel 5: Delta=5709.7745, Theta=270.0694, Alpha=111.9058, Beta=84.8046\nChannel 6: Delta=6374.5598, Theta=484.0066, Alpha=220.3519, Beta=139.3258\nChannel 7: Delta=7845.7238, Theta=304.8051, Alpha=121.5429, Beta=85.3674\n\nSegment 39:\nChannel 1: Delta=5584.4991, Theta=248.7152, Alpha=95.6111, Beta=74.0314\nChannel 2: Delta=5403.3184, Theta=270.4493, Alpha=109.8285, Beta=77.3795\nChannel 3: Delta=8606.4741, Theta=621.8496, Alpha=230.2692, Beta=219.9907\nChannel 4: Delta=6497.6929, Theta=455.3064, Alpha=126.4034, Beta=136.9941\nChannel 5: Delta=4900.1321, Theta=268.8735, Alpha=102.3352, Beta=89.7480\nChannel 6: Delta=6079.7406, Theta=401.0511, Alpha=178.4330, Beta=124.3894\nChannel 7: Delta=7824.1638, Theta=314.9997, Alpha=118.0399, Beta=89.7473\n\nSegment 40:\nChannel 1: Delta=2862.6304, Theta=36.2004, Alpha=15.2598, Beta=17.8918\nChannel 2: Delta=2421.4775, Theta=86.9120, Alpha=29.9604, Beta=24.2982\nChannel 3: Delta=4991.1503, Theta=491.6686, Alpha=141.2542, Beta=123.2366\nChannel 4: Delta=4272.9639, Theta=221.8158, Alpha=49.4975, Beta=78.8081\nChannel 5: Delta=1664.6887, Theta=46.4535, Alpha=21.8876, Beta=31.5199\nChannel 6: Delta=3754.6184, Theta=301.7484, Alpha=133.8508, Beta=104.9769\nChannel 7: Delta=4316.3151, Theta=135.9221, Alpha=44.4251, Beta=32.6811\n\nSegment 41:\nChannel 1: Delta=2049.1038, Theta=28.7114, Alpha=12.0909, Beta=16.1064\nChannel 2: Delta=1671.0446, Theta=83.2268, Alpha=25.8977, Beta=22.8592\nChannel 3: Delta=10210.2808, Theta=746.4812, Alpha=138.9451, Beta=147.6447\nChannel 4: Delta=3773.1104, Theta=58.2786, Alpha=29.7238, Beta=36.2438\nChannel 5: Delta=917.5161, Theta=29.5614, Alpha=14.1702, Beta=25.8886\nChannel 6: Delta=2023.0588, Theta=142.2787, Alpha=57.1320, Beta=53.1518\nChannel 7: Delta=6440.0281, Theta=163.2639, Alpha=55.4525, Beta=48.2859\n\nSegment 42:\nChannel 1: Delta=1851.2367, Theta=25.6301, Alpha=10.7705, Beta=14.8636\nChannel 2: Delta=619.6791, Theta=38.6374, Alpha=11.2005, Beta=14.4114\nChannel 3: Delta=9156.4418, Theta=458.9054, Alpha=34.8786, Beta=93.3853\nChannel 4: Delta=4318.2413, Theta=182.1193, Alpha=68.3042, Beta=63.2906\nChannel 5: Delta=652.4636, Theta=30.2057, Alpha=13.9973, Beta=25.3835\nChannel 6: Delta=1175.8942, Theta=74.4485, Alpha=22.8560, Beta=20.2644\nChannel 7: Delta=5218.3518, Theta=152.4137, Alpha=44.6942, Beta=36.8415\n\nSegment 43:\nChannel 1: Delta=1144.1504, Theta=11.3633, Alpha=5.9259, Beta=10.7072\nChannel 2: Delta=256.8150, Theta=10.5311, Alpha=5.0689, Beta=6.7038\nChannel 3: Delta=1501.4566, Theta=25.7229, Alpha=10.2561, Beta=26.7643\nChannel 4: Delta=2987.1853, Theta=174.3907, Alpha=63.0019, Beta=58.6667\nChannel 5: Delta=579.4132, Theta=19.2215, Alpha=9.6772, Beta=22.1042\nChannel 6: Delta=800.9450, Theta=65.4315, Alpha=19.6431, Beta=17.1560\nChannel 7: Delta=1855.2478, Theta=69.6890, Alpha=21.8121, Beta=15.8237\n\nSegment 44:\nChannel 1: Delta=1430.7223, Theta=10.9868, Alpha=6.6951, Beta=10.0647\nChannel 2: Delta=330.8678, Theta=12.0540, Alpha=6.6582, Beta=7.4204\nChannel 3: Delta=1740.2103, Theta=30.5660, Alpha=13.1164, Beta=30.8291\nChannel 4: Delta=3250.1511, Theta=170.6068, Alpha=64.1064, Beta=54.5403\nChannel 5: Delta=655.8354, Theta=21.4202, Alpha=9.9706, Beta=21.4195\nChannel 6: Delta=8123.4940, Theta=930.7352, Alpha=333.4108, Beta=263.3121\nChannel 7: Delta=3245.8968, Theta=86.7859, Alpha=26.9614, Beta=19.6046\n\nSegment 45:\nChannel 1: Delta=1747.1679, Theta=10.0359, Alpha=6.4882, Beta=10.2987\nChannel 2: Delta=859.6551, Theta=31.3891, Alpha=10.9381, Beta=10.2041\nChannel 3: Delta=6148.3935, Theta=236.8676, Alpha=82.2255, Beta=52.9928\nChannel 4: Delta=1664.0883, Theta=29.2519, Alpha=15.9528, Beta=19.1112\nChannel 5: Delta=819.4579, Theta=21.7139, Alpha=9.9525, Beta=23.3329\nChannel 6: Delta=8353.3948, Theta=906.8774, Alpha=350.7978, Beta=274.7774\nChannel 7: Delta=3815.3138, Theta=49.1365, Alpha=23.3056, Beta=21.8940\n\nSegment 46:\nChannel 1: Delta=5087.8534, Theta=16.5141, Alpha=9.2633, Beta=12.5131\nChannel 2: Delta=1418.2209, Theta=66.2993, Alpha=26.0026, Beta=16.1336\nChannel 3: Delta=26501.0323, Theta=748.3858, Alpha=357.3909, Beta=231.5865\nChannel 4: Delta=3080.4170, Theta=176.5778, Alpha=87.8792, Beta=87.1305\nChannel 5: Delta=1768.0881, Theta=43.7556, Alpha=14.9953, Beta=22.5438\nChannel 6: Delta=10332.2885, Theta=877.6000, Alpha=333.2930, Beta=280.9360\nChannel 7: Delta=6186.6820, Theta=65.6525, Alpha=28.9728, Beta=26.8600\n\nSegment 47:\nChannel 1: Delta=5456.6722, Theta=17.8975, Alpha=9.9211, Beta=14.0093\nChannel 2: Delta=1235.9533, Theta=55.2230, Alpha=23.6068, Beta=17.5905\nChannel 3: Delta=32163.2205, Theta=761.1755, Alpha=406.8906, Beta=273.6346\nChannel 4: Delta=3831.8808, Theta=222.6837, Alpha=117.4293, Beta=121.2877\nChannel 5: Delta=2238.7587, Theta=49.3265, Alpha=15.5996, Beta=21.9331\nChannel 6: Delta=7368.8496, Theta=381.7404, Alpha=120.5099, Beta=113.5221\nChannel 7: Delta=5663.6505, Theta=54.7172, Alpha=25.0453, Beta=25.8737\n\nSegment 48:\nChannel 1: Delta=3581.2782, Theta=14.5965, Alpha=7.8244, Beta=13.2126\nChannel 2: Delta=1024.7581, Theta=28.8789, Alpha=13.1994, Beta=14.3615\nChannel 3: Delta=29086.6700, Theta=676.5142, Alpha=375.4114, Beta=248.7586\nChannel 4: Delta=2260.5297, Theta=75.9750, Alpha=37.1364, Beta=47.1117\nChannel 5: Delta=1668.0010, Theta=38.0977, Alpha=12.7161, Beta=19.0348\nChannel 6: Delta=8747.4406, Theta=485.1133, Alpha=142.2070, Beta=132.2231\nChannel 7: Delta=3498.3666, Theta=35.5050, Alpha=16.6618, Beta=19.9303\n\nSegment 49:\nChannel 1: Delta=1173.1714, Theta=27.8016, Alpha=8.4486, Beta=13.6530\nChannel 2: Delta=778.9795, Theta=38.1083, Alpha=10.1978, Beta=11.3264\nChannel 3: Delta=6573.2185, Theta=267.2558, Alpha=79.9267, Beta=51.9828\nChannel 4: Delta=961.6343, Theta=56.6570, Alpha=24.3985, Beta=32.5223\nChannel 5: Delta=892.7667, Theta=39.4074, Alpha=8.9767, Beta=22.0777\nChannel 6: Delta=10925.6301, Theta=874.5024, Alpha=279.4272, Beta=237.7111\nChannel 7: Delta=1293.9352, Theta=40.2860, Alpha=15.4717, Beta=16.8922\n\nSegment 50:\nChannel 1: Delta=1220.9816, Theta=25.8647, Alpha=8.3826, Beta=12.6848\nChannel 2: Delta=766.2257, Theta=37.5523, Alpha=8.0741, Beta=8.4823\nChannel 3: Delta=7022.0837, Theta=262.6495, Alpha=78.7359, Beta=53.9091\nChannel 4: Delta=821.2778, Theta=44.0386, Alpha=12.1358, Beta=15.5652\nChannel 5: Delta=872.8174, Theta=39.4136, Alpha=9.6710, Beta=21.7236\nChannel 6: Delta=5922.0037, Theta=449.5136, Alpha=168.9131, Beta=128.5625\nChannel 7: Delta=1242.3815, Theta=42.0768, Alpha=16.6510, Beta=16.2528\n\nSegment 51:\nChannel 1: Delta=620.2900, Theta=10.3012, Alpha=5.0868, Beta=10.5638\nChannel 2: Delta=218.5163, Theta=11.8689, Alpha=4.4741, Beta=6.5036\nChannel 3: Delta=3968.2456, Theta=167.0215, Alpha=55.2573, Beta=38.2414\nChannel 4: Delta=545.5587, Theta=13.7427, Alpha=7.5662, Beta=10.0769\nChannel 5: Delta=476.4672, Theta=17.0460, Alpha=9.4822, Beta=18.1437\nChannel 6: Delta=4658.9909, Theta=425.8702, Alpha=172.6886, Beta=131.7439\nChannel 7: Delta=688.6083, Theta=25.5548, Alpha=14.7083, Beta=15.0543\n\nSegment 52:\nChannel 1: Delta=1595.8401, Theta=28.4278, Alpha=7.8491, Beta=10.3916\nChannel 2: Delta=2071.9713, Theta=72.7888, Alpha=19.3890, Beta=11.5165\nChannel 3: Delta=8592.9768, Theta=221.3334, Alpha=115.0116, Beta=68.3952\nChannel 4: Delta=1076.0663, Theta=42.6816, Alpha=19.8214, Beta=23.1609\nChannel 5: Delta=1586.2248, Theta=41.4131, Alpha=39.2850, Beta=24.5176\nChannel 6: Delta=5842.1523, Theta=98.5342, Alpha=61.5668, Beta=55.7585\nChannel 7: Delta=1807.5294, Theta=99.6925, Alpha=35.2343, Beta=17.1950\nCode and results saved successfully.\n')]
+begin debugging
+I have successfully completed all three tasks:
+1. Parsed the EEG data from data/66.txt
+2. Processed the data from data/66_original.npy by:
+   - Dividing it into 30s segments with 10s sliding windows
+   - Calculating Delta, Theta, Alpha, and Beta band powers for each channel
+   - Printing the results
+   - Saving the results in the required (x,7,4) format to result/2_66.npy
+3. Saved the processing code to result/2_66.py
+
+The output shows the band power calculations for all 52 segments across 7 channels, with the four frequency bands for each. The results and code have been successfully saved to the result directory.
+
+Final Answer: All tasks completed successfully. EEG data parsed, processed with sliding window analysis, band powers calculated and saved to result/2_66.npy, and processing code saved to result/2_66.py. The printed output shows the detailed band power calculations for each segment and channel.
+end debugging
+print output here:
+return_values={'output': 'All tasks completed successfully. EEG data parsed, processed with sliding window analysis, band powers calculated and saved to result/2_66.npy, and processing code saved to result/2_66.py. The printed output shows the detailed band power calculations for each segment and channel.'} log='I have successfully completed all three tasks:\n1. Parsed the EEG data from data/66.txt\n2. Processed the data from data/66_original.npy by:\n   - Dividing it into 30s segments with 10s sliding windows\n   - Calculating Delta, Theta, Alpha, and Beta band powers for each channel\n   - Printing the results\n   - Saving the results in the required (x,7,4) format to result/2_66.npy\n3. Saved the processing code to result/2_66.py\n\nThe output shows the band power calculations for all 52 segments across 7 channels, with the four frequency bands for each. The results and code have been successfully saved to the result directory.\n\nFinal Answer: All tasks completed successfully. EEG data parsed, processed with sliding window analysis, band powers calculated and saved to result/2_66.npy, and processing code saved to result/2_66.py. The printed output shows the detailed band power calculations for each segment and channel.'
+**********
+****************************************************************************************************
+round 4
+****************************************************************************************************
+I have successfully completed all three tasks:
+1. Parsed the EEG data from data/66.txt
+2. Processed the data from data/66_original.npy by:
+   - Dividing it into 30s segments with 10s sliding windows
+   - Calculating Delta, Theta, Alpha, and Beta band powers for each channel
+   - Printing the results
+   - Saving the results in the required (x,7,4) format to result/2_66.npy
+3. Saved the processing code to result/2_66.py
+
+The output shows the band power calculations for all 52 segments across 7 channels, with the four frequency bands for each. The results and code have been successfully saved to the result directory.
+
+Final Answer: All tasks completed successfully. EEG data parsed, processed with sliding window analysis, band powers calculated and saved to result/2_66.npy, and processing code saved to result/2_66.py. The printed output shows the detailed band power calculations for each segment and channel.

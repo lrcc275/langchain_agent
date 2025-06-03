@@ -31,7 +31,7 @@ def data_formats(i):
     if i == 1:
         return "(7,3)"
     if i == 2:
-        return "(7,4)"
+        return "(x,7,4[x取决于具体数据]"
     if i == 3:
         return "(7,x)[x取决于具体数据]"
     if i == 4:
@@ -41,9 +41,9 @@ def data_formats(i):
     if i == 6:
         return "(7,1)"
     if i == 7:
-        return "以(7,x)[x取决于具体数据]"
-    if i == 8:
         return "(7,x)[x取决于具体数据]"
+    if i == 8:
+        return "(7,1)"
     if i == 9:
         return "(1)使用parse_eeg_data工具，解析同目录下的data/{j+80}.txt；(2)编写并且运行python代码，对同目录下的data/{j+80}_original.npy的数据使用动态因果建模(DCM)分析7通道间的因果关系，打印结果并可视化，将数值存到同目录下的result/9_{j+80}.npy，将图片存到同目录下的result/9_{j+80}.jpg，(3)将第二步中代码存到同目录下的文件result/9_{j+80}.py"
     if i == 10:

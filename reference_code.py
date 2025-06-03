@@ -8,6 +8,8 @@ from scipy.fftpack import fft, fftfreq
 from sklearn.decomposition import FastICA
 import statsmodels.tsa.stattools as smt
 from sklearn.cluster import KMeans
+import scipy.stats
+import antropy
 
 def sol_1(input_filename, output_stats_filename):
     try:
@@ -38,50 +40,122 @@ def sol_1(input_filename, output_stats_filename):
         print(f"错误: 文件 '{input_filename}' 不存在")
     except Exception as e:
         print(f"错误: 处理数据时发生异常: {e}")
-    
-def sol_2(input_filename, output_stats_filename):
-    fs = 250
-    win_length_sec = 30
-    step_samples = 10 * fs
-    step_sec = 10
 
+import numpy as np
+from scipy import signal
+
+def sol_2(input_file, output_file):
+    """
+    计算EEG数据在不同频带的功率
+    
+    参数:
+    input_file (str): 输入数据文件路径 (.npy格式)
+    output_file (str): 输出结果文件路径 (.npy格式)
+    
+    返回:
+    numpy.ndarray: 形状为(n_windows, n_channels, 4)的数组，包含各窗口各通道的频带功率
+    """
+    # 加载数据
     try:
-        # 读取数据
-        data = np.load(input_filename)
-        print(f"成功读取数据。数组形状为: {data.shape}")
-        
-        n_channels, n_samples = data.shape
-        
-        # 计算滑窗参数
-        win_length_samples = win_length_sec * fs
-        step_samples = step_sec * fs
-        starts = np.arange(0, n_samples - win_length_samples + 1, step_samples)
-        n_windows = len(starts)
-        
-        # 初始化结果数组
-        results = np.zeros((n_windows, n_channels, 4))
-        band_names = ['delta', 'theta', 'alpha', 'beta']
-        
-        # 计算每个窗口的频段能量
-        print(f"开始计算频段能量，共{n_windows}个窗口...")
-        for i, start in enumerate(starts):
-            end = start + win_length_samples
-            window_data = data[:, start:end]
-            for ch in range(n_channels):
-                f, Pxx = signal.welch(window_data[ch], fs, nperseg=win_length_samples)
-                delta = Pxx[(f >= 0.5) & (f <= 4)].sum()
-                theta = Pxx[(f >= 4) & (f <= 8)].sum()
-                alpha = Pxx[(f >= 8) & (f <= 13)].sum()
-                beta = Pxx[(f >= 13) & (f <= 30)].sum()
-                results[i, ch] = [delta, theta, alpha, beta]
-        
-        # 保存结果
-        np.save(output_stats_filename, results)
-        print(f"频段能量结果已保存到 {output_stats_filename}")
-        print(f"结果形状: {results.shape} (窗口数, 通道数, 频段数)")
-        
+        data = np.load(input_file)
+    except FileNotFoundError:
+        print(f"错误: 文件 {input_file} 不存在")
+        return None
     except Exception as e:
-        print(f"处理过程中发生错误: {e}")
+        print(f"错误: 加载文件时发生异常: {e}")
+        return None
+    
+    # 设置参数
+    fs = 250  # 采样率
+    window_size = 30 * fs  # 30秒窗口
+    step_size = 10 * fs    # 10秒步长
+    
+    # 定义频带
+    bands = {
+        'Delta': (0.5, 4),
+        'Theta': (4, 8),
+        'Alpha': (8, 13),
+        'Beta': (13, 30)
+    }
+    
+    # 初始化结果列表
+    results = []
+    
+    # 处理每个窗口
+    for start in range(0, data.shape[1] - window_size + 1, step_size):
+        window = data[:, start:start + window_size]
+        band_powers = []
+        
+        # 计算每个通道的频带功率
+        for channel in window:
+            # 使用Welch方法计算功率谱密度
+            freqs, psd = signal.welch(channel, fs=fs, nperseg=window_size)
+            
+            # 计算每个频带的功率
+            channel_bands = []
+            for band, (low, high) in bands.items():
+                band_mask = (freqs >= low) & (freqs < high)
+                channel_bands.append(np.sum(psd[band_mask]))
+            
+            band_powers.append(channel_bands)
+        
+        results.append(band_powers)
+    
+    # 转换为numpy数组
+    results_array = np.array(results)
+    
+    # 保存结果
+    try:
+        np.save(output_file, results_array)
+        print(f"结果已保存到 {output_file}")
+    except Exception as e:
+        print(f"错误: 保存文件时发生异常: {e}")
+
+
+# def sol_2(input_filename, output_stats_filename):
+#     fs = 250
+#     win_length_sec = 30
+#     step_samples = 10 * fs
+#     step_sec = 10
+
+#     try:
+#         # 读取数据
+#         data = np.load(input_filename)
+#         print(f"成功读取数据。数组形状为: {data.shape}")
+        
+#         n_channels, n_samples = data.shape
+        
+#         # 计算滑窗参数
+#         win_length_samples = win_length_sec * fs
+#         step_samples = step_sec * fs
+#         starts = np.arange(0, n_samples - win_length_samples + 1, step_samples)
+#         n_windows = len(starts)
+        
+#         # 初始化结果数组
+#         results = np.zeros((n_windows, n_channels, 4))
+#         band_names = ['delta', 'theta', 'alpha', 'beta']
+        
+#         # 计算每个窗口的频段能量
+#         print(f"开始计算频段能量，共{n_windows}个窗口...")
+#         for i, start in enumerate(starts):
+#             end = start + win_length_samples
+#             window_data = data[:, start:end]
+#             for ch in range(n_channels):
+#                 f, Pxx = signal.welch(window_data[ch], fs, nperseg=win_length_samples)
+#                 delta = Pxx[(f >= 0.5) & (f <= 4)].sum()
+#                 theta = Pxx[(f >= 4) & (f <= 8)].sum()
+#                 alpha = Pxx[(f >= 8) & (f <= 13)].sum()
+#                 beta = Pxx[(f >= 13) & (f <= 30)].sum()
+#                 results[i, ch] = [delta, theta, alpha, beta]
+        
+#         # 保存结果
+#         print(results)
+#         np.save(output_stats_filename, results)
+#         print(f"频段能量结果已保存到 {output_stats_filename}")
+#         print(f"结果形状: {results.shape} (窗口数, 通道数, 频段数)")
+        
+#     except Exception as e:
+#         print(f"处理过程中发生错误: {e}")
 
 def sol_3(input_filename, output_stats_filename):
     try:
@@ -148,111 +222,119 @@ def sol_4(input_filename, output_stats_filename):
             mask = (f >= 8) & (f <= 12)
             avg_coh = np.mean(Cxy[mask]) if mask.any() else 0
             coh_matrix[i, j] = avg_coh
-
+    print(coh_matrix)
     # --- 3. 保存结果 ---   
     np.save(output_stats_filename, coh_matrix)
 
-def sol_5(input_filename, output_stats_filename, fs=250, segment_length_sec=10, m=2):
-    try:
-        # 加载数据
-        data = np.load(input_filename)
-        print(f"成功加载数据: {data.shape} (通道数, 样本数)")
-        
-        # 数据分段处理
-        segment_length = segment_length_sec * fs
-        n_channels, n_samples = data.shape
-        n_segments = n_samples // segment_length
-        data_truncated = data[:, :n_segments*segment_length]
-        segments = data_truncated.reshape(n_channels, n_segments, segment_length)
-        
-        print(f"数据分段: 每段{segment_length_sec}秒({segment_length}样本)，共{n_segments}段")
-        
-        # 初始化结果数组
-        entropy_results = np.zeros((n_channels, n_segments, 3))
-        
-        # 计算三种熵
-        print("开始计算熵值特征...")
-        for ch in range(n_channels):
-            for seg in range(n_segments):
-                seg_data = segments[ch, seg]
-                
-                # 计算样本熵
-                samp_ent = sample_entropy(seg_data, m=m)
-                
-                # 计算近似熵
-                app_ent = approx_entropy(seg_data, m=m)
-                
-                # 计算谱熵
-                freqs, psd = signal.periodogram(seg_data, fs=fs)
-                psd_norm = psd / psd.sum()
-                psd_norm[psd_norm == 0] = 1e-12  # 避免log(0)
-                spec_ent = -np.sum(psd_norm * np.log2(psd_norm))
-                
-                # 保存结果
-                entropy_results[ch, seg] = [samp_ent, app_ent, spec_ent]
-        
-        # 保存结果
-        np.save(output_stats_filename, entropy_results)
-        print(f"熵值计算结果已保存至: {output_stats_filename}")
-        
-        # 打印结果摘要
-        print("\n熵值结果摘要:")
-        for ch in range(min(3, n_channels)):  # 仅打印前3个通道作为示例
-            print(f"通道 {ch+1}:")
-            for s in range(min(3, n_segments)):  # 仅打印前3个分段作为示例
-                res = entropy_results[ch, s]
-                print(f"  分段 {s+1}: 样本熵={res[0]:.3f}, 近似熵={res[1]:.3f}, 谱熵={res[2]:.3f}")
-        if n_channels > 3 or n_segments > 3:
-            print("... 更多结果已保存到文件中")
-        
-    except Exception as e:
-        print(f"处理过程中发生错误: {e}")
+def calculate_spectral_entropy(data_channel, sf):
+    """
+    计算单个数据通道的谱熵。
+    使用Welch方法估计功率谱密度 (PSD)。
 
-def sample_entropy(data, m=2, r=None):
-    """计算样本熵"""
-    N = len(data)
-    if r is None:
-        r = 0.2 * np.std(data)
-    if N <= m + 1:
-        return 0
-    x = np.array([data[i:i+m] for i in range(N - m)])
-    y = np.array([data[i:i+m+1] for i in range(N - m)])
-    C_m = 0
-    C_m1 = 0
-    for i in range(len(x)):
-        for j in range(len(x)):
-            if i != j:
-                if np.max(np.abs(x[i] - x[j])) <= r:
-                    C_m += 1
-                if np.max(np.abs(y[i] - y[j])) <= r:
-                    C_m1 += 1
-    B = C_m / ((N - m) * (N - m - 1)) if (N - m) * (N - m - 1) > 0 else 0
-    A = C_m1 / ((N - m) * (N - m - 1)) if (N - m) * (N - m - 1) > 0 else 0
-    return -np.log(A / B) if A !=0 and B !=0 else 0
+    参数:
+        data_channel (np.ndarray): 单个通道的时间序列数据 (1D 数组)。
+        sf (float): 采样频率 (Hz)。
 
-def approx_entropy(data, m=2, r=None):
-    """计算近似熵"""
-    N = len(data)
-    if r is None:
-        r = 0.2 * np.std(data)
+    返回:
+        float: 谱熵值。
+    """
+    n_samples = len(data_channel)
+    # Welch方法的nperseg参数，默认为256，如果信号长度小于256，则使用信号长度
+    nperseg = min(n_samples, 256)
+
+    if n_samples == 0: # 处理空数据通道
+        return np.nan
+    if nperseg == 0 : # 如果信号长度为0，nperseg也会为0
+        return np.nan # 或者根据需求返回0.0
+
+    # 计算功率谱密度 (PSD)
+    # freqs频率数组, psd功率谱密度数组
+    freqs, psd = scipy.signal.welch(data_channel, fs=sf, nperseg=nperseg)
+
+    # 检查PSD是否接近全零 (例如，对于恒定信号或零信号)
+    if np.sum(psd) < 1e-10:
+        return 0.0  # 谱熵为0，因为频谱中没有不确定性
+
+    # 将PSD归一化，使其总和为1，形成概率分布
+    psd_norm = psd / np.sum(psd)
+
+    # 计算香农熵 (以2为底)
+    # scipy.stats.entropy 会自动处理 pk=0 的情况 (0 * log(0) = 0)
+    spectral_entropy_val = scipy.stats.entropy(psd_norm, base=2)
+
+    return spectral_entropy_val
+
+def sol_5(input_filename, output_stats_filename):
+    # --- 参数设定 ---
+    fs = 250  # 采样频率 (Hz)
+    segment_duration_s = 10  # 数据段时长 (秒)
+    entropy_m = 2  # 样本熵和近似熵的嵌入维度 (antropy中的order参数)
+    # antropy 默认使用 r = 0.2 * std(data) 作为容差阈值 (Chebyshev距离)
+
+    data = np.load(input_filename) 
+
+    num_channels, total_samples = data.shape
+    samples_per_segment = int(fs * segment_duration_s) # 每段的样本点数
+
+    num_segments = total_samples // samples_per_segment # 计算可以完整分割出的段数
+
+    # --- 初始化结果存储 ---
+    # 每个熵值结果将是一个 (num_segments, num_channels) 的2D数组
+    results_sample_entropy = np.zeros((num_segments, num_channels))
+    results_approximate_entropy = np.zeros((num_segments, num_channels))
+    results_spectral_entropy = np.zeros((num_segments, num_channels))
+
+    # --- 逐段处理数据 ---
+    for i in range(num_segments):
+        start_idx = i * samples_per_segment
+        end_idx = start_idx + samples_per_segment
+        segment_data = data[:, start_idx:end_idx] # 获取当前数据段，形状为 (7, samples_per_segment)
+
+        for j in range(num_channels): # 遍历每个通道
+            channel_data = segment_data[j, :] # 获取当前通道的数据 (1D 数组)
+
+            # 检查通道数据是否为常数，这可能导致熵计算出现问题 (例如std=0)
+            if np.std(channel_data) < 1e-9:  # 有效地视为常数
+                print(f"  通道 {j+1}: 数据为常数或接近常数。熵值可能为 NaN 或 0。")
+                samp_en = np.nan
+                ap_en = np.nan
+                # 常数信号的谱熵为0 (频谱在0Hz处有一个尖峰)
+                spec_en = 0.0 if np.all(channel_data == channel_data[0]) else calculate_spectral_entropy(channel_data, sf=fs)
+
+            else:
+                # 1. 计算样本熵 (Sample Entropy)
+                    # antropy.sample_entropy 使用 order=m (嵌入维度)
+                    # 默认使用 Chebyshev 距离和 r = 0.2 * std(data)
+                samp_en = antropy.sample_entropy(channel_data, order=entropy_m)
+
+                # 2. 计算近似熵 (Approximate Entropy)
+                    # antropy.app_entropy 使用 order=m (嵌入维度)
+                    # 默认使用 Chebyshev 距离和 r = 0.2 * std(data)
+                ap_en = antropy.app_entropy(channel_data, order=entropy_m)
+
+                # 3. 计算谱熵 (Spectral Entropy)
+                spec_en = calculate_spectral_entropy(channel_data, sf=fs)
+
+            
+            results_sample_entropy[i, j] = samp_en
+            results_approximate_entropy[i, j] = ap_en
+            results_spectral_entropy[i, j] = spec_en
+    stacked_array = np.stack([results_sample_entropy.T, results_approximate_entropy.T, results_spectral_entropy.T], axis=1) 
+    output_filename = output_stats_filename
+    np.save(output_filename, stacked_array) # 使用关键字参数保存，方便加载时按键名读取
+    print(f"\n处理完成。结果已保存到 '{output_filename}'。")
+    print("已保存熵值数组的形状:")
+    print(f"  样本熵: {results_sample_entropy.shape}")
+    print(f"  近似熵: {results_approximate_entropy.shape}")
+    print(f"  谱熵: {results_spectral_entropy.shape}")
     
-    def _phi(m):
-        x = np.array([data[i:i+m] for i in range(N - m + 1)])
-        C = np.zeros(len(x))
-        for i in range(len(x)):
-            dist = np.max(np.abs(x[i] - x), axis=1)
-            C[i] = np.sum(dist <= r) - 1  # 减去自身匹配
-        C = C / (N - m)
-        return np.mean(np.log(C + 1e-12))  # 添加小常数避免log(0)
-    
-    return _phi(m) - _phi(m+1)
 
 
 
-def sol_6(input_filename, output_stats_filename):
+def sol_6(input_filename, output_results_filename):
     # --- 配置文件 ---
-    input_filename = "data/6_original.npy"
-    output_results_filename = "6_sol.npy"
+    # input_filename = "data/6_original.npy"
+    # output_results_filename = "6_sol.npy"
 
     sampling_rate = 250  # Hz
 
@@ -331,35 +413,89 @@ def sol_7(input_filename, output_results_filename):
     # --- 3.存储结果 ---
     np.save(output_results_filename, components)
 
-def sol_8(input_filename, output_results_filename):
-    # --- 1.导入数据 ---
-    data = np.load(input_filename)
+import numpy as np
+from numpy.fft import fft
 
-    if len(data.shape) == 2:
-        data = np.mean(data, axis=0)
+def sol_8(input_file, output_file):
+    """
+    计算EEG数据在指定频率下的SSVEP振幅
+    
+    参数:
+    input_file (str): 输入数据文件路径 (.npy格式)
+    output_file (str): 输出结果文件路径 (.npy格式)
+    target_freq (float): 目标频率 (Hz), 默认为4Hz
+    num_channels (int): 通道数，用于重塑结果，默认为7
+    
+    返回:
+    numpy.ndarray: 形状为(num_channels, -1)的数组，包含各通道的指定频率振幅
+    """
+    target_freq=4
+    num_channels=7
+    # 加载数据
+    try:
+        data = np.load(input_file)
+    except FileNotFoundError:
+        print(f"错误: 文件 {input_file} 不存在")
+        return None
+    except Exception as e:
+        print(f"错误: 加载文件时发生异常: {e}")
+        return None
+    
+    # 获取采样参数
+    fs = 250  # 采样率 (Hz)
+    n_samples = data.shape[1]  # 每个通道的样本数
+    
+    # 计算FFT并提取指定频率的振幅
+    try:
+        fft_values = np.abs(fft(data, axis=1))
+        freqs = np.fft.fftfreq(n_samples, 1/fs)
+        target_bin = np.argmin(np.abs(freqs - target_freq))
+        
+        # 获取所有通道在指定频率的振幅
+        ssvep_amplitudes = fft_values[:, target_bin]
+        
+        # 重塑为指定的通道数
+        result = ssvep_amplitudes.reshape(num_channels, -1)
+        
+        # 保存结果
+        np.save(output_file, result)
+        print(output_file)
+        print(f"SSVEP振幅结果已保存到 {output_file}")
+        
+        return result
+    except Exception as e:
+        print(f"错误: 处理数据时发生异常: {e}")
+        return None
+    
+# def sol_8(input_filename, output_results_filename):
+#     # --- 1.导入数据 ---
+#     data = np.load(input_filename)
 
-    # --- 2.计算fft及其幅值 ---
-    fs = 250
-    n_points = len(data)
+#     if len(data.shape) == 2:
+#         data = np.mean(data, axis=0)
 
-    data = data - np.mean(data)
-    window = np.hanning(n_points)
-    data_windowed = data * window
+#     # --- 2.计算fft及其幅值 ---
+#     fs = 250
+#     n_points = len(data)
 
-    yf = fft(data_windowed)
-    xf = fftfreq(n_points, 1/fs)
+#     data = data - np.mean(data)
+#     window = np.hanning(n_points)
+#     data_windowed = data * window
 
-    positive_freq = xf[:n_points//2]
-    amplitude = np.abs(yf[:n_points//2]) * 2 / n_points
+#     yf = fft(data_windowed)
+#     xf = fftfreq(n_points, 1/fs)
 
-    target_freq = 4.0
-    idx = np.argmin(np.abs(positive_freq - target_freq))
-    amp_value = amplitude[idx]
+#     positive_freq = xf[:n_points//2]
+#     amplitude = np.abs(yf[:n_points//2]) * 2 / n_points
 
-    # --- 3.存储结果并打印 ---
-    print(f"4Hz对应幅值: {amp_value:.4f}")
+#     target_freq = 4.0
+#     idx = np.argmin(np.abs(positive_freq - target_freq))
+#     amp_value = amplitude[idx]
 
-    np.save(output_results_filename, amp_value)
+#     # --- 3.存储结果并打印 ---
+#     print(f"4Hz对应幅值: {amp_value:.4f}")
+
+#     np.save(output_results_filename, amp_value)
 
 def sol_10(input_filename, output_results_filename):
     maxlag=10
@@ -433,6 +569,6 @@ def sol_11(input_filename, output_results_filename):
     peak_indices = np.where(gfp > np.percentile(gfp, 85))[0]
     peaks = data[:, peak_indices].T
     kmeans = KMeans(n_clusters=4, random_state=42).fit(peaks)
-
+    print(kmeans.cluster_centers_)
     # --- 3.保存以及可视化 ---
-    np.save(output_results_filename, kmeans.cluster_centers_)
+    np.save(output_results_filename, kmeans.cluster_centers_.T)

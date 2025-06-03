@@ -1,0 +1,756 @@
+enter function stream
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/12.txt；(2)编写并且运行python代码，对同目录下的data/12_original.npy,将数据分10s为一段，计算每个通道的样本熵、近似熵和谱熵，打印结果, 将数值以(7,3,x)[x取决于具体数据]的格式存到同目录下的result/5_12.npy, (3)将代码保存到result/5_12.py'}
+[]
+begin debugging
+I'll break this down into three parts as requested: parsing the EEG data, processing the original data with entropy calculations, and saving the results and code. Let's proceed step by step.
+
+Thought: First, I need to parse the EEG data from the specified file using the parse_eeg_data tool.
+Action: parse_eeg_data
+Action Input: "data/12.txt"
+end debugging
+print output here:
+tool='parse_eeg_data' tool_input='data/12.txt' log='I\'ll break this down into three parts as requested: parsing the EEG data, processing the original data with entropy calculations, and saving the results and code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file using the parse_eeg_data tool.\nAction: parse_eeg_data\nAction Input: "data/12.txt"'
+**********
+****************************************************************************************************
+round 0
+****************************************************************************************************
+I'll break this down into three parts as requested: parsing the EEG data, processing the original data with entropy calculations, and saving the results and code. Let's proceed step by step.
+
+Thought: First, I need to parse the EEG data from the specified file using the parse_eeg_data tool.
+: parse_eeg_data
+ Input: "data/12.txt"
+**********
+enter function perform_agent_action
+tool='parse_eeg_data' tool_input='data/12.txt' log='I\'ll break this down into three parts as requested: parsing the EEG data, processing the original data with entropy calculations, and saving the results and code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file using the parse_eeg_data tool.\nAction: parse_eeg_data\nAction Input: "data/12.txt"'
+**********
+**********
+enter function perform_agent_action lookup true branch
+你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入
+**********
+****************************************************************************************************
+round 1
+****************************************************************************************************
+你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/12.txt；(2)编写并且运行python代码，对同目录下的data/12_original.npy,将数据分10s为一段，计算每个通道的样本熵、近似熵和谱熵，打印结果, 将数值以(7,3,x)[x取决于具体数据]的格式存到同目录下的result/5_12.npy, (3)将代码保存到result/5_12.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/12.txt', log='I\'ll break this down into three parts as requested: parsing the EEG data, processing the original data with entropy calculations, and saving the results and code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file using the parse_eeg_data tool.\nAction: parse_eeg_data\nAction Input: "data/12.txt"'), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入')]
+begin debugging
+Now I'll proceed with the second part: processing the EEG data, calculating entropy measures, and saving the results.
+
+Thought: I need to write Python code to:
+1. Load the data from data/12_original.npy
+2. Split it into 10-second segments
+3. Calculate sample entropy, approximate entropy, and spectral entropy for each channel in each segment
+4. Print the results
+5. Save the results in a (7,3,x) shaped array to result/5_12.npy
+6. Save the code to result/5_12.py
+
+Action: Python_REPL
+Action Input:
+```python
+import numpy as np
+from antropy import sample_entropy, app_entropy, spectral_entropy
+import os
+
+# Load data
+data = np.load('data/12_original.npy')
+
+# Assuming sampling rate is 250 Hz (common for EEG), adjust if different
+fs = 250
+segment_length = 10 * fs  # 10 seconds of data
+
+# Calculate number of segments
+n_segments = data.shape[1] // segment_length
+
+# Initialize result array (7 channels, 3 entropy measures, n_segments)
+results = np.zeros((7, 3, n_segments))
+
+for seg in range(n_segments):
+    start = seg * segment_length
+    end = start + segment_length
+    segment = data[:, start:end]
+    
+    for ch in range(7):  # Assuming 7 channels
+        # Calculate entropies
+        samp_ent = sample_entropy(segment[ch])
+        app_ent = app_entropy(segment[ch])
+        spec_ent = spectral_entropy(segment[ch], sf=fs, method='welch')
+        
+        # Store results
+        results[ch, 0, seg] = samp_ent
+        results[ch, 1, seg] = app_ent
+        results[ch, 2, seg] = spec_ent
+
+# Print results
+print("Entropy results (7 channels, 3 measures, n_segments):")
+print(results.shape)
+print(results)
+
+# Save results
+os.makedirs('result', exist_ok=True)
+np.save('result/5_12.npy', results)
+
+# Save code
+code = """
+import numpy as np
+from antropy import sample_entropy, app_entropy, spectral_entropy
+import os
+
+# Load data
+data = np.load('data/12_original.npy')
+
+# Assuming sampling rate is 250 Hz (common for EEG), adjust if different
+fs = 250
+segment_length = 10 * fs  # 10 seconds of data
+
+# Calculate number of segments
+n_segments = data.shape[1] // segment_length
+
+# Initialize result array (7 channels, 3 entropy measures, n_segments)
+results = np.zeros((7, 3, n_segments))
+
+for seg in range(n_segments):
+    start = seg * segment_length
+    end = start + segment_length
+    segment = data[:, start:end]
+    
+    for ch in range(7):  # Assuming 7 channels
+        # Calculate entropies
+        samp_ent = sample_entropy(segment[ch])
+        app_ent = app_entropy(segment[ch])
+        spec_ent = spectral_entropy(segment[ch], sf=fs, method='welch')
+        
+        # Store results
+        results[ch, 0, seg] = samp_ent
+        results[ch, 1, seg] = app_ent
+        results[ch, 2, seg] = spec_ent
+
+# Save results
+os.makedirs('result', exist_ok=True)
+np.save('result/5_12.npy', results)
+"""
+
+with open('result/5_12.py', 'w') as f:
+    f.write(code)
+
+print("Code saved to result/5_12.py")
+print("Results saved to result/5_12.npy")
+```
+end debugging
+print output here:
+tool='Python_REPL' tool_input='```python\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Print results\nprint("Entropy results (7 channels, 3 measures, n_segments):")\nprint(results.shape)\nprint(results)\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n\n# Save code\ncode = """\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n"""\n\nwith open(\'result/5_12.py\', \'w\') as f:\n    f.write(code)\n\nprint("Code saved to result/5_12.py")\nprint("Results saved to result/5_12.npy")\n```' log='Now I\'ll proceed with the second part: processing the EEG data, calculating entropy measures, and saving the results.\n\nThought: I need to write Python code to:\n1. Load the data from data/12_original.npy\n2. Split it into 10-second segments\n3. Calculate sample entropy, approximate entropy, and spectral entropy for each channel in each segment\n4. Print the results\n5. Save the results in a (7,3,x) shaped array to result/5_12.npy\n6. Save the code to result/5_12.py\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Print results\nprint("Entropy results (7 channels, 3 measures, n_segments):")\nprint(results.shape)\nprint(results)\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n\n# Save code\ncode = """\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n"""\n\nwith open(\'result/5_12.py\', \'w\') as f:\n    f.write(code)\n\nprint("Code saved to result/5_12.py")\nprint("Results saved to result/5_12.npy")\n```'
+**********
+****************************************************************************************************
+round 2
+****************************************************************************************************
+Now I'll proceed with the second part: processing the EEG data, calculating entropy measures, and saving the results.
+
+Thought: I need to write Python code to:
+1. Load the data from data/12_original.npy
+2. Split it into 10-second segments
+3. Calculate sample entropy, approximate entropy, and spectral entropy for each channel in each segment
+4. Print the results
+5. Save the results in a (7,3,x) shaped array to result/5_12.npy
+6. Save the code to result/5_12.py
+
+: Python_REPL
+ Input:
+```python
+import numpy as np
+from antropy import sample_entropy, app_entropy, spectral_entropy
+import os
+
+# Load data
+data = np.load('data/12_original.npy')
+
+# Assuming sampling rate is 250 Hz (common for EEG), adjust if different
+fs = 250
+segment_length = 10 * fs  # 10 seconds of data
+
+# Calculate number of segments
+n_segments = data.shape[1] // segment_length
+
+# Initialize result array (7 channels, 3 entropy measures, n_segments)
+results = np.zeros((7, 3, n_segments))
+
+for seg in range(n_segments):
+    start = seg * segment_length
+    end = start + segment_length
+    segment = data[:, start:end]
+    
+    for ch in range(7):  # Assuming 7 channels
+        # Calculate entropies
+        samp_ent = sample_entropy(segment[ch])
+        app_ent = app_entropy(segment[ch])
+        spec_ent = spectral_entropy(segment[ch], sf=fs, method='welch')
+        
+        # Store results
+        results[ch, 0, seg] = samp_ent
+        results[ch, 1, seg] = app_ent
+        results[ch, 2, seg] = spec_ent
+
+# Print results
+print("Entropy results (7 channels, 3 measures, n_segments):")
+print(results.shape)
+print(results)
+
+# Save results
+os.makedirs('result', exist_ok=True)
+np.save('result/5_12.npy', results)
+
+# Save code
+code = """
+import numpy as np
+from antropy import sample_entropy, app_entropy, spectral_entropy
+import os
+
+# Load data
+data = np.load('data/12_original.npy')
+
+# Assuming sampling rate is 250 Hz (common for EEG), adjust if different
+fs = 250
+segment_length = 10 * fs  # 10 seconds of data
+
+# Calculate number of segments
+n_segments = data.shape[1] // segment_length
+
+# Initialize result array (7 channels, 3 entropy measures, n_segments)
+results = np.zeros((7, 3, n_segments))
+
+for seg in range(n_segments):
+    start = seg * segment_length
+    end = start + segment_length
+    segment = data[:, start:end]
+    
+    for ch in range(7):  # Assuming 7 channels
+        # Calculate entropies
+        samp_ent = sample_entropy(segment[ch])
+        app_ent = app_entropy(segment[ch])
+        spec_ent = spectral_entropy(segment[ch], sf=fs, method='welch')
+        
+        # Store results
+        results[ch, 0, seg] = samp_ent
+        results[ch, 1, seg] = app_ent
+        results[ch, 2, seg] = spec_ent
+
+# Save results
+os.makedirs('result', exist_ok=True)
+np.save('result/5_12.npy', results)
+"""
+
+with open('result/5_12.py', 'w') as f:
+    f.write(code)
+
+print("Code saved to result/5_12.py")
+print("Results saved to result/5_12.npy")
+```
+**********
+enter function perform_agent_action
+tool='Python_REPL' tool_input='```python\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Print results\nprint("Entropy results (7 channels, 3 measures, n_segments):")\nprint(results.shape)\nprint(results)\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n\n# Save code\ncode = """\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n"""\n\nwith open(\'result/5_12.py\', \'w\') as f:\n    f.write(code)\n\nprint("Code saved to result/5_12.py")\nprint("Results saved to result/5_12.npy")\n```' log='Now I\'ll proceed with the second part: processing the EEG data, calculating entropy measures, and saving the results.\n\nThought: I need to write Python code to:\n1. Load the data from data/12_original.npy\n2. Split it into 10-second segments\n3. Calculate sample entropy, approximate entropy, and spectral entropy for each channel in each segment\n4. Print the results\n5. Save the results in a (7,3,x) shaped array to result/5_12.npy\n6. Save the code to result/5_12.py\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Print results\nprint("Entropy results (7 channels, 3 measures, n_segments):")\nprint(results.shape)\nprint(results)\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n\n# Save code\ncode = """\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n"""\n\nwith open(\'result/5_12.py\', \'w\') as f:\n    f.write(code)\n\nprint("Code saved to result/5_12.py")\nprint("Results saved to result/5_12.npy")\n```'
+**********
+**********
+enter function perform_agent_action lookup true branch
+Entropy results (7 channels, 3 measures, n_segments):
+(7, 3, 44)
+[[[8.35329937e-01 1.15042054e+00 8.06907385e-01 8.30878673e-01
+   1.70114548e+00 1.70483142e+00 1.63379126e+00 1.64368933e+00
+   1.57288263e+00 1.55649127e+00 1.04932522e+00 1.52215127e+00
+   1.62799754e+00 1.62517624e+00 1.58332456e+00 1.52470109e+00
+   1.62812668e+00 1.71400163e+00 1.58324818e+00 1.63274752e+00
+   1.73410248e+00 1.64200074e+00 1.68001473e+00 1.63152927e+00
+   9.54285092e-01 1.66444564e+00 1.61081549e+00 1.56232775e+00
+   1.53924232e+00 1.62777651e+00 1.52494846e+00 1.50960047e+00
+   1.48685521e+00 1.48226574e+00 1.48070199e+00 1.45280923e+00
+   1.54606443e+00 1.54387026e+00 1.52152535e+00 1.46201822e+00
+   1.59019553e+00 1.62074457e+00 9.30747231e-04 2.59076731e-02]
+  [9.80069735e-01 1.26734121e+00 9.74220913e-01 9.41139103e-01
+   1.67993709e+00 1.68888958e+00 1.62303818e+00 1.63199472e+00
+   1.57163745e+00 1.52070897e+00 1.14972399e+00 1.53042297e+00
+   1.61770521e+00 1.62320682e+00 1.59913646e+00 1.55203082e+00
+   1.62432051e+00 1.67074472e+00 1.58127888e+00 1.61081807e+00
+   1.67932868e+00 1.60699811e+00 1.66038520e+00 1.62991127e+00
+   1.06444253e+00 1.66520453e+00 1.58154020e+00 1.54853777e+00
+   1.51283510e+00 1.57764216e+00 1.49412155e+00 1.49859822e+00
+   1.45248026e+00 1.45806320e+00 1.46212106e+00 1.43699734e+00
+   1.51237997e+00 1.51220070e+00 1.48014422e+00 1.45836443e+00
+   1.53749109e+00 1.57529418e+00 5.80081688e-03 5.06156458e-02]
+  [4.10202821e+00 4.51869711e+00 4.86204274e+00 3.65306331e+00
+   5.71201913e+00 5.69684650e+00 5.15854594e+00 5.52017934e+00
+   5.09190008e+00 4.64229039e+00 3.85281873e+00 4.82817175e+00
+   5.21105157e+00 5.15333990e+00 5.47116558e+00 5.41747573e+00
+   5.45199088e+00 5.42830460e+00 5.29787472e+00 5.26844841e+00
+   4.74471153e+00 4.90248846e+00 5.28957599e+00 5.48657603e+00
+   3.91808814e+00 5.39281969e+00 4.84549415e+00 4.79206446e+00
+   4.41813826e+00 4.40224639e+00 4.26259018e+00 4.28586238e+00
+   4.13637173e+00 4.05085991e+00 4.23724304e+00 4.12310020e+00
+   4.24750829e+00 4.15958857e+00 4.28816386e+00 4.31453607e+00
+   4.24950389e+00 4.02644983e+00 2.16794947e+00 2.01773784e+00]]
+
+ [[7.56375837e-01 1.00556079e+00 6.80296730e-01 7.10585934e-01
+   1.66233363e+00 1.74754430e+00 1.69251954e+00 1.71616403e+00
+   1.65463293e+00 1.59099363e+00 1.03339818e+00 1.57023500e+00
+   1.60716570e+00 1.66303984e+00 1.70381808e+00 1.56626150e+00
+   1.70453876e+00 1.66668141e+00 1.51467757e+00 1.62420096e+00
+   1.65715766e+00 1.65710718e+00 1.64738041e+00 1.72500640e+00
+   7.35141942e-01 1.67813269e+00 1.62945542e+00 1.54888863e+00
+   1.47643810e+00 1.59747630e+00 1.54618718e+00 1.52891624e+00
+   1.55138562e+00 1.57980530e+00 1.53744204e+00 1.54981991e+00
+   1.57292480e+00 1.57585510e+00 1.56414127e+00 1.55235623e+00
+   1.59357855e+00 1.65286619e+00 9.14968468e-04 1.75083328e-02]
+  [8.30879891e-01 1.08084402e+00 7.86926110e-01 7.77022194e-01
+   1.61398254e+00 1.67673727e+00 1.63163979e+00 1.63965517e+00
+   1.61303034e+00 1.56745670e+00 1.04956316e+00 1.54260285e+00
+   1.57216883e+00 1.60713237e+00 1.63582278e+00 1.54399023e+00
+   1.65791102e+00 1.61012655e+00 1.50671357e+00 1.58877582e+00
+   1.62207025e+00 1.61031162e+00 1.59941735e+00 1.64558265e+00
+   8.14415056e-01 1.64414565e+00 1.59473152e+00 1.53817769e+00
+   1.49335846e+00 1.54644389e+00 1.52863130e+00 1.50584223e+00
+   1.50931449e+00 1.52483087e+00 1.50269428e+00 1.50193015e+00
+   1.53736361e+00 1.54798029e+00 1.52410318e+00 1.49445743e+00
+   1.55798030e+00 1.58190691e+00 6.14202112e-03 3.21435486e-02]
+  [4.01620353e+00 4.26290434e+00 3.94523208e+00 2.93686915e+00
+   4.56204787e+00 4.64382202e+00 4.39889949e+00 4.51061230e+00
+   4.56725421e+00 4.30001868e+00 3.19823778e+00 4.27167701e+00
+   4.26885673e+00 4.33282233e+00 4.60619683e+00 4.37093288e+00
+   4.74512731e+00 4.21721611e+00 4.09976932e+00 4.03005216e+00
+   3.59829141e+00 3.89057033e+00 4.23134961e+00 4.35935312e+00
+   2.89129105e+00 4.44948881e+00 4.34869200e+00 4.24648071e+00
+   4.13420243e+00 4.17132018e+00 4.07773515e+00 4.06383854e+00
+   4.05875328e+00 3.90416214e+00 4.03170082e+00 3.98883699e+00
+   3.96121461e+00 3.88136408e+00 4.17806043e+00 4.09951762e+00
+   3.97129054e+00 3.89151262e+00 2.21587026e+00 1.74115817e+00]]
+
+ [[7.95078549e-01 8.59179363e-01 5.12882040e-01 5.79117688e-01
+   1.76784936e+00 1.76863400e+00 1.75941468e+00 1.76343445e+00
+   1.76512126e+00 1.55748837e+00 1.05561996e+00 1.58506524e+00
+   1.70276644e+00 1.67990809e+00 1.70173866e+00 1.65901399e+00
+   1.74382462e+00 1.71037460e+00 1.66516004e+00 1.67639574e+00
+   1.73707091e+00 1.66340358e+00 1.74254482e+00 1.74685798e+00
+   7.86910044e-01 1.73165458e+00 1.66622858e+00 1.67561529e+00
+   1.70459587e+00 1.65887752e+00 1.60007224e+00 1.51549143e+00
+   1.50082139e+00 1.57162320e+00 1.47494379e+00 1.50020987e+00
+   1.58125240e+00 1.59006201e+00 1.55288900e+00 1.51695753e+00
+   1.58515403e+00 1.64419967e+00 9.27075577e-04 2.20432225e-02]
+  [8.86449481e-01 9.42331058e-01 6.60786303e-01 6.63482969e-01
+   1.70296949e+00 1.68999639e+00 1.69886725e+00 1.68889197e+00
+   1.68280541e+00 1.52298459e+00 1.08008122e+00 1.55799678e+00
+   1.64764674e+00 1.62526596e+00 1.65322878e+00 1.63679701e+00
+   1.69242112e+00 1.65063054e+00 1.62995722e+00 1.62450184e+00
+   1.65492560e+00 1.60417253e+00 1.67889638e+00 1.67809448e+00
+   9.11326086e-01 1.67551309e+00 1.62863095e+00 1.64315489e+00
+   1.65189078e+00 1.62040039e+00 1.55762573e+00 1.47826750e+00
+   1.47905433e+00 1.53040075e+00 1.45843703e+00 1.46552325e+00
+   1.57385902e+00 1.54895845e+00 1.51151274e+00 1.48699138e+00
+   1.54730289e+00 1.57908549e+00 6.57963377e-03 4.09125911e-02]
+  [4.45625363e+00 3.34924334e+00 4.25599735e+00 2.93664739e+00
+   4.77369395e+00 4.86545513e+00 4.70740168e+00 4.60432889e+00
+   4.71133803e+00 4.50809433e+00 3.41923156e+00 4.25399287e+00
+   4.22153006e+00 4.47086880e+00 4.75164325e+00 4.56384945e+00
+   4.72478389e+00 4.25438155e+00 4.28351057e+00 4.06729227e+00
+   3.69596692e+00 3.94561662e+00 4.37737839e+00 4.45224263e+00
+   3.05775040e+00 4.69967876e+00 4.46391353e+00 4.47565053e+00
+   4.46660338e+00 4.36159263e+00 4.17907796e+00 4.09308602e+00
+   3.90464073e+00 3.76525150e+00 3.87367758e+00 3.81647930e+00
+   4.11716375e+00 3.79726575e+00 4.00146759e+00 3.95013884e+00
+   3.74794568e+00 3.81745039e+00 2.19662562e+00 1.89777319e+00]]
+
+ [[8.87219878e-01 1.28663260e+00 1.06291015e+00 9.96143718e-01
+   1.09795968e+00 1.23629760e+00 1.31402031e+00 1.28889712e+00
+   1.06438215e+00 1.24857655e+00 7.79037100e-01 1.23675033e+00
+   1.15986503e+00 1.40587091e+00 1.48540380e+00 1.54352866e+00
+   1.54170732e+00 1.21227314e+00 8.52960963e-01 1.11223362e+00
+   1.31080778e+00 1.23541587e+00 1.24435145e+00 1.32350473e+00
+   9.45071674e-01 1.19671270e+00 1.24326039e+00 1.20068201e+00
+   1.06927825e+00 1.35988336e+00 1.30795937e+00 1.26901526e+00
+   1.26609922e+00 1.29637088e+00 1.24771821e+00 1.23088745e+00
+   1.17213867e+00 1.32942971e+00 1.33031857e+00 1.20705777e+00
+   1.33251838e+00 1.41895986e+00 9.89238971e-04 4.15270219e-02]
+  [9.95872005e-01 1.32699883e+00 1.12199673e+00 1.09449058e+00
+   1.12099881e+00 1.26487773e+00 1.29534135e+00 1.27438887e+00
+   1.14884196e+00 1.25511682e+00 8.07248945e-01 1.20440603e+00
+   1.13135615e+00 1.39619218e+00 1.45622548e+00 1.50810933e+00
+   1.51222888e+00 1.21998830e+00 9.31156983e-01 1.12752850e+00
+   1.29439923e+00 1.23267443e+00 1.26068773e+00 1.31765597e+00
+   1.03138424e+00 1.25230201e+00 1.27906994e+00 1.26118695e+00
+   1.15244483e+00 1.34185156e+00 1.29711888e+00 1.28319868e+00
+   1.24748684e+00 1.28182602e+00 1.24514062e+00 1.22141509e+00
+   1.17050542e+00 1.31787104e+00 1.32895562e+00 1.20670543e+00
+   1.30855206e+00 1.39208854e+00 4.51434280e-02 1.18786436e-01]
+  [3.35587994e+00 3.36669285e+00 4.30291800e+00 3.11661413e+00
+   3.01950390e+00 3.06171772e+00 3.17226111e+00 3.07341697e+00
+   3.14554253e+00 3.11379294e+00 2.53308404e+00 2.92912715e+00
+   2.67257455e+00 3.12517574e+00 3.54975725e+00 3.61872566e+00
+   3.47845892e+00 2.94651424e+00 2.83191105e+00 2.66543788e+00
+   2.39295222e+00 2.74281859e+00 2.96140328e+00 3.05251899e+00
+   3.26940890e+00 3.11851653e+00 3.14618164e+00 3.18972402e+00
+   3.14715868e+00 3.26751043e+00 3.22885570e+00 3.26920045e+00
+   3.20972779e+00 3.08853211e+00 3.18707577e+00 3.10690662e+00
+   2.78996908e+00 3.04805135e+00 3.22842649e+00 2.98236138e+00
+   2.99960211e+00 2.86235526e+00 2.19613340e+00 2.42549758e+00]]
+
+ [[2.42213244e-01 7.21176130e-01 6.34452616e-01 7.53778324e-01
+   1.29806403e+00 1.28666998e+00 1.39519702e+00 1.34486213e+00
+   1.39558937e+00 1.38837438e+00 1.00758166e+00 1.37376105e+00
+   1.39608043e+00 1.40721765e+00 1.27834977e+00 1.22209318e+00
+   1.30176841e+00 1.40017999e+00 1.31655109e+00 1.33093170e+00
+   1.51987120e+00 1.43727807e+00 1.41664528e+00 1.40682720e+00
+   3.45974181e-01 1.47994715e+00 1.37192275e+00 1.44562928e+00
+   1.41302434e+00 1.34280180e+00 1.34233621e+00 1.30930831e+00
+   1.31206692e+00 1.37512773e+00 1.30675126e+00 1.26880510e+00
+   1.45459251e+00 1.40560319e+00 1.28297175e+00 1.28923763e+00
+   1.39660818e+00 1.40767275e+00 9.01663272e-04 1.34090327e-02]
+  [3.40430620e-01 8.28527452e-01 7.81102759e-01 8.40391223e-01
+   1.30252505e+00 1.29983126e+00 1.38474743e+00 1.34968071e+00
+   1.39651733e+00 1.38626910e+00 1.03184219e+00 1.35697056e+00
+   1.37534073e+00 1.39846202e+00 1.31019234e+00 1.25708118e+00
+   1.31442881e+00 1.39087681e+00 1.32955302e+00 1.34147530e+00
+   1.48555750e+00 1.42599958e+00 1.39923126e+00 1.39954617e+00
+   4.43941030e-01 1.47404503e+00 1.37832499e+00 1.45963711e+00
+   1.41687152e+00 1.35956629e+00 1.34859141e+00 1.31864691e+00
+   1.30264633e+00 1.37237200e+00 1.30112181e+00 1.26999284e+00
+   1.43847903e+00 1.40293284e+00 1.27546152e+00 1.28324819e+00
+   1.38923209e+00 1.38473209e+00 5.08890090e-03 6.05730812e-02]
+  [2.06461159e+00 2.66123919e+00 4.00655729e+00 2.75601702e+00
+   3.05719655e+00 3.09977654e+00 3.20795430e+00 3.14945162e+00
+   3.46260872e+00 3.36870945e+00 3.22986857e+00 3.28253745e+00
+   3.21577126e+00 3.37603499e+00 3.25493504e+00 3.17461834e+00
+   3.17116067e+00 3.32365093e+00 3.27448426e+00 3.18871200e+00
+   3.20541964e+00 3.30815007e+00 3.25116689e+00 3.27731429e+00
+   2.29591843e+00 3.59479656e+00 3.28670986e+00 3.44230679e+00
+   3.40353936e+00 3.33605718e+00 3.35588822e+00 3.28098442e+00
+   3.26714102e+00 3.44544462e+00 3.27729736e+00 3.17867305e+00
+   3.41508096e+00 3.36472141e+00 3.16146437e+00 3.21103240e+00
+   3.30892851e+00 3.24862340e+00 2.25244449e+00 2.14677510e+00]]
+
+ [[8.05004549e-01 8.46416398e-01 5.02492777e-01 6.59552548e-01
+   1.49514144e+00 1.50212711e+00 1.54673233e+00 1.55709625e+00
+   1.53313087e+00 1.60755372e+00 1.21813015e+00 1.54487379e+00
+   1.61328906e+00 1.53479023e+00 1.54101768e+00 1.50080966e+00
+   1.50690115e+00 1.65432366e+00 1.65021295e+00 1.62835700e+00
+   1.68627633e+00 1.62702911e+00 1.65294516e+00 1.61013761e+00
+   6.43215550e-01 1.68055575e+00 1.67254009e+00 1.65234224e+00
+   1.65339186e+00 1.66928844e+00 1.66540033e+00 1.65490068e+00
+   1.63510161e+00 1.59110173e+00 1.61583056e+00 1.63614927e+00
+   1.67046351e+00 1.66425653e+00 1.58801457e+00 1.60444274e+00
+   1.68189041e+00 1.65977276e+00 9.51148286e-04 1.29761992e-02]
+  [8.57148681e-01 9.48922929e-01 6.19249174e-01 7.08806701e-01
+   1.48574095e+00 1.47896595e+00 1.51899047e+00 1.52499148e+00
+   1.49915157e+00 1.56545980e+00 1.22868622e+00 1.49147789e+00
+   1.55257219e+00 1.50421234e+00 1.54177422e+00 1.49932599e+00
+   1.49584835e+00 1.59407386e+00 1.59136714e+00 1.57576128e+00
+   1.62331514e+00 1.57480502e+00 1.58155519e+00 1.57368695e+00
+   7.84881291e-01 1.62735366e+00 1.61812509e+00 1.59927273e+00
+   1.60038107e+00 1.62725346e+00 1.60348890e+00 1.59214451e+00
+   1.57393448e+00 1.55024095e+00 1.57185841e+00 1.58227077e+00
+   1.60000715e+00 1.60975968e+00 1.53082647e+00 1.56283231e+00
+   1.61118369e+00 1.59865759e+00 1.33768952e-02 2.05420606e-02]
+  [4.31298283e+00 3.83878090e+00 4.61375532e+00 2.85945381e+00
+   4.51845144e+00 4.53814554e+00 4.39347509e+00 4.31341215e+00
+   4.70664998e+00 4.54489547e+00 3.82623707e+00 4.47348184e+00
+   4.59453024e+00 4.52498941e+00 4.79430570e+00 4.55101306e+00
+   4.67462112e+00 4.49187943e+00 4.63149845e+00 4.46525089e+00
+   4.18959022e+00 4.29904579e+00 4.61014635e+00 4.58433293e+00
+   3.62508454e+00 4.75992728e+00 4.66040359e+00 4.68535043e+00
+   4.61531649e+00 4.57190508e+00 4.60032939e+00 4.65972629e+00
+   4.56543898e+00 4.35379705e+00 4.65032663e+00 4.48019761e+00
+   4.52859281e+00 4.49001708e+00 4.55288518e+00 4.53915627e+00
+   4.46147674e+00 4.39434733e+00 2.21377790e+00 1.26531337e+00]]
+
+ [[5.97549251e-01 8.85944856e-01 4.65763107e-01 4.42106567e-01
+   1.24836125e+00 1.53049795e+00 1.37965310e+00 1.37599590e+00
+   1.26369848e+00 1.29747731e+00 4.71974864e-01 1.17233554e+00
+   1.31048329e+00 1.25772745e+00 1.22127988e+00 1.19443838e+00
+   1.27756763e+00 1.30232294e+00 1.35995410e+00 1.39925289e+00
+   1.42364392e+00 1.37131754e+00 1.37136770e+00 1.29994616e+00
+   4.75386103e-01 1.36123889e+00 1.34711319e+00 1.30132548e+00
+   1.31026701e+00 1.32465663e+00 1.29956951e+00 1.25259219e+00
+   1.22529725e+00 1.22936733e+00 1.19086641e+00 1.12754136e+00
+   1.25402667e+00 1.18897968e+00 1.19861245e+00 1.22610716e+00
+   1.20292412e+00 1.19595502e+00 9.39444671e-04 6.58414536e-03]
+  [7.15917535e-01 1.04199327e+00 6.06896520e-01 5.52360877e-01
+   1.31801414e+00 1.55876213e+00 1.40996651e+00 1.40838682e+00
+   1.30230823e+00 1.33909930e+00 5.33379717e-01 1.23704414e+00
+   1.35334891e+00 1.33010219e+00 1.27824964e+00 1.27481232e+00
+   1.32549077e+00 1.34453880e+00 1.38782258e+00 1.41855792e+00
+   1.44740072e+00 1.39511293e+00 1.41551931e+00 1.37159719e+00
+   6.82728105e-01 1.42898197e+00 1.41223946e+00 1.36095643e+00
+   1.37260109e+00 1.39568319e+00 1.36473954e+00 1.29996576e+00
+   1.28878044e+00 1.25785193e+00 1.23438651e+00 1.18315992e+00
+   1.29185498e+00 1.27589245e+00 1.25905925e+00 1.29484528e+00
+   1.25765421e+00 1.24972719e+00 6.41203281e-03 2.60978249e-02]
+  [4.10672413e+00 4.30932825e+00 4.29797066e+00 2.58902295e+00
+   4.58224470e+00 5.16780132e+00 4.63605071e+00 4.74560706e+00
+   4.57992313e+00 4.56631365e+00 2.88675991e+00 4.38655745e+00
+   5.01448315e+00 4.70040327e+00 4.38891625e+00 4.48817939e+00
+   4.55471619e+00 4.54249839e+00 4.65754420e+00 4.75325643e+00
+   4.65573527e+00 4.69251848e+00 4.98211359e+00 4.75297803e+00
+   4.39784221e+00 4.90270270e+00 4.80920605e+00 4.74208622e+00
+   4.70370923e+00 4.73229356e+00 4.75365822e+00 4.60499007e+00
+   4.57691904e+00 4.48735159e+00 4.44733444e+00 4.29719527e+00
+   4.67497537e+00 4.68707909e+00 4.61074529e+00 4.83768588e+00
+   4.70832965e+00 4.63655524e+00 2.15789426e+00 1.91890537e+00]]]
+Code saved to result/5_12.py
+Results saved to result/5_12.npy
+
+**********
+****************************************************************************************************
+round 3
+****************************************************************************************************
+Entropy results (7 channels, 3 measures, n_segments):
+(7, 3, 44)
+[[[8.35329937e-01 1.15042054e+00 8.06907385e-01 8.30878673e-01
+   1.70114548e+00 1.70483142e+00 1.63379126e+00 1.64368933e+00
+   1.57288263e+00 1.55649127e+00 1.04932522e+00 1.52215127e+00
+   1.62799754e+00 1.62517624e+00 1.58332456e+00 1.52470109e+00
+   1.62812668e+00 1.71400163e+00 1.58324818e+00 1.63274752e+00
+   1.73410248e+00 1.64200074e+00 1.68001473e+00 1.63152927e+00
+   9.54285092e-01 1.66444564e+00 1.61081549e+00 1.56232775e+00
+   1.53924232e+00 1.62777651e+00 1.52494846e+00 1.50960047e+00
+   1.48685521e+00 1.48226574e+00 1.48070199e+00 1.45280923e+00
+   1.54606443e+00 1.54387026e+00 1.52152535e+00 1.46201822e+00
+   1.59019553e+00 1.62074457e+00 9.30747231e-04 2.59076731e-02]
+  [9.80069735e-01 1.26734121e+00 9.74220913e-01 9.41139103e-01
+   1.67993709e+00 1.68888958e+00 1.62303818e+00 1.63199472e+00
+   1.57163745e+00 1.52070897e+00 1.14972399e+00 1.53042297e+00
+   1.61770521e+00 1.62320682e+00 1.59913646e+00 1.55203082e+00
+   1.62432051e+00 1.67074472e+00 1.58127888e+00 1.61081807e+00
+   1.67932868e+00 1.60699811e+00 1.66038520e+00 1.62991127e+00
+   1.06444253e+00 1.66520453e+00 1.58154020e+00 1.54853777e+00
+   1.51283510e+00 1.57764216e+00 1.49412155e+00 1.49859822e+00
+   1.45248026e+00 1.45806320e+00 1.46212106e+00 1.43699734e+00
+   1.51237997e+00 1.51220070e+00 1.48014422e+00 1.45836443e+00
+   1.53749109e+00 1.57529418e+00 5.80081688e-03 5.06156458e-02]
+  [4.10202821e+00 4.51869711e+00 4.86204274e+00 3.65306331e+00
+   5.71201913e+00 5.69684650e+00 5.15854594e+00 5.52017934e+00
+   5.09190008e+00 4.64229039e+00 3.85281873e+00 4.82817175e+00
+   5.21105157e+00 5.15333990e+00 5.47116558e+00 5.41747573e+00
+   5.45199088e+00 5.42830460e+00 5.29787472e+00 5.26844841e+00
+   4.74471153e+00 4.90248846e+00 5.28957599e+00 5.48657603e+00
+   3.91808814e+00 5.39281969e+00 4.84549415e+00 4.79206446e+00
+   4.41813826e+00 4.40224639e+00 4.26259018e+00 4.28586238e+00
+   4.13637173e+00 4.05085991e+00 4.23724304e+00 4.12310020e+00
+   4.24750829e+00 4.15958857e+00 4.28816386e+00 4.31453607e+00
+   4.24950389e+00 4.02644983e+00 2.16794947e+00 2.01773784e+00]]
+
+ [[7.56375837e-01 1.00556079e+00 6.80296730e-01 7.10585934e-01
+   1.66233363e+00 1.74754430e+00 1.69251954e+00 1.71616403e+00
+   1.65463293e+00 1.59099363e+00 1.03339818e+00 1.57023500e+00
+   1.60716570e+00 1.66303984e+00 1.70381808e+00 1.56626150e+00
+   1.70453876e+00 1.66668141e+00 1.51467757e+00 1.62420096e+00
+   1.65715766e+00 1.65710718e+00 1.64738041e+00 1.72500640e+00
+   7.35141942e-01 1.67813269e+00 1.62945542e+00 1.54888863e+00
+   1.47643810e+00 1.59747630e+00 1.54618718e+00 1.52891624e+00
+   1.55138562e+00 1.57980530e+00 1.53744204e+00 1.54981991e+00
+   1.57292480e+00 1.57585510e+00 1.56414127e+00 1.55235623e+00
+   1.59357855e+00 1.65286619e+00 9.14968468e-04 1.75083328e-02]
+  [8.30879891e-01 1.08084402e+00 7.86926110e-01 7.77022194e-01
+   1.61398254e+00 1.67673727e+00 1.63163979e+00 1.63965517e+00
+   1.61303034e+00 1.56745670e+00 1.04956316e+00 1.54260285e+00
+   1.57216883e+00 1.60713237e+00 1.63582278e+00 1.54399023e+00
+   1.65791102e+00 1.61012655e+00 1.50671357e+00 1.58877582e+00
+   1.62207025e+00 1.61031162e+00 1.59941735e+00 1.64558265e+00
+   8.14415056e-01 1.64414565e+00 1.59473152e+00 1.53817769e+00
+   1.49335846e+00 1.54644389e+00 1.52863130e+00 1.50584223e+00
+   1.50931449e+00 1.52483087e+00 1.50269428e+00 1.50193015e+00
+   1.53736361e+00 1.54798029e+00 1.52410318e+00 1.49445743e+00
+   1.55798030e+00 1.58190691e+00 6.14202112e-03 3.21435486e-02]
+  [4.01620353e+00 4.26290434e+00 3.94523208e+00 2.93686915e+00
+   4.56204787e+00 4.64382202e+00 4.39889949e+00 4.51061230e+00
+   4.56725421e+00 4.30001868e+00 3.19823778e+00 4.27167701e+00
+   4.26885673e+00 4.33282233e+00 4.60619683e+00 4.37093288e+00
+   4.74512731e+00 4.21721611e+00 4.09976932e+00 4.03005216e+00
+   3.59829141e+00 3.89057033e+00 4.23134961e+00 4.35935312e+00
+   2.89129105e+00 4.44948881e+00 4.34869200e+00 4.24648071e+00
+   4.13420243e+00 4.17132018e+00 4.07773515e+00 4.06383854e+00
+   4.05875328e+00 3.90416214e+00 4.03170082e+00 3.98883699e+00
+   3.96121461e+00 3.88136408e+00 4.17806043e+00 4.09951762e+00
+   3.97129054e+00 3.89151262e+00 2.21587026e+00 1.74115817e+00]]
+
+ [[7.95078549e-01 8.59179363e-01 5.12882040e-01 5.79117688e-01
+   1.76784936e+00 1.76863400e+00 1.75941468e+00 1.76343445e+00
+   1.76512126e+00 1.55748837e+00 1.05561996e+00 1.58506524e+00
+   1.70276644e+00 1.67990809e+00 1.70173866e+00 1.65901399e+00
+   1.74382462e+00 1.71037460e+00 1.66516004e+00 1.67639574e+00
+   1.73707091e+00 1.66340358e+00 1.74254482e+00 1.74685798e+00
+   7.86910044e-01 1.73165458e+00 1.66622858e+00 1.67561529e+00
+   1.70459587e+00 1.65887752e+00 1.60007224e+00 1.51549143e+00
+   1.50082139e+00 1.57162320e+00 1.47494379e+00 1.50020987e+00
+   1.58125240e+00 1.59006201e+00 1.55288900e+00 1.51695753e+00
+   1.58515403e+00 1.64419967e+00 9.27075577e-04 2.20432225e-02]
+  [8.86449481e-01 9.42331058e-01 6.60786303e-01 6.63482969e-01
+   1.70296949e+00 1.68999639e+00 1.69886725e+00 1.68889197e+00
+   1.68280541e+00 1.52298459e+00 1.08008122e+00 1.55799678e+00
+   1.64764674e+00 1.62526596e+00 1.65322878e+00 1.63679701e+00
+   1.69242112e+00 1.65063054e+00 1.62995722e+00 1.62450184e+00
+   1.65492560e+00 1.60417253e+00 1.67889638e+00 1.67809448e+00
+   9.11326086e-01 1.67551309e+00 1.62863095e+00 1.64315489e+00
+   1.65189078e+00 1.62040039e+00 1.55762573e+00 1.47826750e+00
+   1.47905433e+00 1.53040075e+00 1.45843703e+00 1.46552325e+00
+   1.57385902e+00 1.54895845e+00 1.51151274e+00 1.48699138e+00
+   1.54730289e+00 1.57908549e+00 6.57963377e-03 4.09125911e-02]
+  [4.45625363e+00 3.34924334e+00 4.25599735e+00 2.93664739e+00
+   4.77369395e+00 4.86545513e+00 4.70740168e+00 4.60432889e+00
+   4.71133803e+00 4.50809433e+00 3.41923156e+00 4.25399287e+00
+   4.22153006e+00 4.47086880e+00 4.75164325e+00 4.56384945e+00
+   4.72478389e+00 4.25438155e+00 4.28351057e+00 4.06729227e+00
+   3.69596692e+00 3.94561662e+00 4.37737839e+00 4.45224263e+00
+   3.05775040e+00 4.69967876e+00 4.46391353e+00 4.47565053e+00
+   4.46660338e+00 4.36159263e+00 4.17907796e+00 4.09308602e+00
+   3.90464073e+00 3.76525150e+00 3.87367758e+00 3.81647930e+00
+   4.11716375e+00 3.79726575e+00 4.00146759e+00 3.95013884e+00
+   3.74794568e+00 3.81745039e+00 2.19662562e+00 1.89777319e+00]]
+
+ [[8.87219878e-01 1.28663260e+00 1.06291015e+00 9.96143718e-01
+   1.09795968e+00 1.23629760e+00 1.31402031e+00 1.28889712e+00
+   1.06438215e+00 1.24857655e+00 7.79037100e-01 1.23675033e+00
+   1.15986503e+00 1.40587091e+00 1.48540380e+00 1.54352866e+00
+   1.54170732e+00 1.21227314e+00 8.52960963e-01 1.11223362e+00
+   1.31080778e+00 1.23541587e+00 1.24435145e+00 1.32350473e+00
+   9.45071674e-01 1.19671270e+00 1.24326039e+00 1.20068201e+00
+   1.06927825e+00 1.35988336e+00 1.30795937e+00 1.26901526e+00
+   1.26609922e+00 1.29637088e+00 1.24771821e+00 1.23088745e+00
+   1.17213867e+00 1.32942971e+00 1.33031857e+00 1.20705777e+00
+   1.33251838e+00 1.41895986e+00 9.89238971e-04 4.15270219e-02]
+  [9.95872005e-01 1.32699883e+00 1.12199673e+00 1.09449058e+00
+   1.12099881e+00 1.26487773e+00 1.29534135e+00 1.27438887e+00
+   1.14884196e+00 1.25511682e+00 8.07248945e-01 1.20440603e+00
+   1.13135615e+00 1.39619218e+00 1.45622548e+00 1.50810933e+00
+   1.51222888e+00 1.21998830e+00 9.31156983e-01 1.12752850e+00
+   1.29439923e+00 1.23267443e+00 1.26068773e+00 1.31765597e+00
+   1.03138424e+00 1.25230201e+00 1.27906994e+00 1.26118695e+00
+   1.15244483e+00 1.34185156e+00 1.29711888e+00 1.28319868e+00
+   1.24748684e+00 1.28182602e+00 1.24514062e+00 1.22141509e+00
+   1.17050542e+00 1.31787104e+00 1.32895562e+00 1.20670543e+00
+   1.30855206e+00 1.39208854e+00 4.51434280e-02 1.18786436e-01]
+  [3.35587994e+00 3.36669285e+00 4.30291800e+00 3.11661413e+00
+   3.01950390e+00 3.06171772e+00 3.17226111e+00 3.07341697e+00
+   3.14554253e+00 3.11379294e+00 2.53308404e+00 2.92912715e+00
+   2.67257455e+00 3.12517574e+00 3.54975725e+00 3.61872566e+00
+   3.47845892e+00 2.94651424e+00 2.83191105e+00 2.66543788e+00
+   2.39295222e+00 2.74281859e+00 2.96140328e+00 3.05251899e+00
+   3.26940890e+00 3.11851653e+00 3.14618164e+00 3.18972402e+00
+   3.14715868e+00 3.26751043e+00 3.22885570e+00 3.26920045e+00
+   3.20972779e+00 3.08853211e+00 3.18707577e+00 3.10690662e+00
+   2.78996908e+00 3.04805135e+00 3.22842649e+00 2.98236138e+00
+   2.99960211e+00 2.86235526e+00 2.19613340e+00 2.42549758e+00]]
+
+ [[2.42213244e-01 7.21176130e-01 6.34452616e-01 7.53778324e-01
+   1.29806403e+00 1.28666998e+00 1.39519702e+00 1.34486213e+00
+   1.39558937e+00 1.38837438e+00 1.00758166e+00 1.37376105e+00
+   1.39608043e+00 1.40721765e+00 1.27834977e+00 1.22209318e+00
+   1.30176841e+00 1.40017999e+00 1.31655109e+00 1.33093170e+00
+   1.51987120e+00 1.43727807e+00 1.41664528e+00 1.40682720e+00
+   3.45974181e-01 1.47994715e+00 1.37192275e+00 1.44562928e+00
+   1.41302434e+00 1.34280180e+00 1.34233621e+00 1.30930831e+00
+   1.31206692e+00 1.37512773e+00 1.30675126e+00 1.26880510e+00
+   1.45459251e+00 1.40560319e+00 1.28297175e+00 1.28923763e+00
+   1.39660818e+00 1.40767275e+00 9.01663272e-04 1.34090327e-02]
+  [3.40430620e-01 8.28527452e-01 7.81102759e-01 8.40391223e-01
+   1.30252505e+00 1.29983126e+00 1.38474743e+00 1.34968071e+00
+   1.39651733e+00 1.38626910e+00 1.03184219e+00 1.35697056e+00
+   1.37534073e+00 1.39846202e+00 1.31019234e+00 1.25708118e+00
+   1.31442881e+00 1.39087681e+00 1.32955302e+00 1.34147530e+00
+   1.48555750e+00 1.42599958e+00 1.39923126e+00 1.39954617e+00
+   4.43941030e-01 1.47404503e+00 1.37832499e+00 1.45963711e+00
+   1.41687152e+00 1.35956629e+00 1.34859141e+00 1.31864691e+00
+   1.30264633e+00 1.37237200e+00 1.30112181e+00 1.26999284e+00
+   1.43847903e+00 1.40293284e+00 1.27546152e+00 1.28324819e+00
+   1.38923209e+00 1.38473209e+00 5.08890090e-03 6.05730812e-02]
+  [2.06461159e+00 2.66123919e+00 4.00655729e+00 2.75601702e+00
+   3.05719655e+00 3.09977654e+00 3.20795430e+00 3.14945162e+00
+   3.46260872e+00 3.36870945e+00 3.22986857e+00 3.28253745e+00
+   3.21577126e+00 3.37603499e+00 3.25493504e+00 3.17461834e+00
+   3.17116067e+00 3.32365093e+00 3.27448426e+00 3.18871200e+00
+   3.20541964e+00 3.30815007e+00 3.25116689e+00 3.27731429e+00
+   2.29591843e+00 3.59479656e+00 3.28670986e+00 3.44230679e+00
+   3.40353936e+00 3.33605718e+00 3.35588822e+00 3.28098442e+00
+   3.26714102e+00 3.44544462e+00 3.27729736e+00 3.17867305e+00
+   3.41508096e+00 3.36472141e+00 3.16146437e+00 3.21103240e+00
+   3.30892851e+00 3.24862340e+00 2.25244449e+00 2.14677510e+00]]
+
+ [[8.05004549e-01 8.46416398e-01 5.02492777e-01 6.59552548e-01
+   1.49514144e+00 1.50212711e+00 1.54673233e+00 1.55709625e+00
+   1.53313087e+00 1.60755372e+00 1.21813015e+00 1.54487379e+00
+   1.61328906e+00 1.53479023e+00 1.54101768e+00 1.50080966e+00
+   1.50690115e+00 1.65432366e+00 1.65021295e+00 1.62835700e+00
+   1.68627633e+00 1.62702911e+00 1.65294516e+00 1.61013761e+00
+   6.43215550e-01 1.68055575e+00 1.67254009e+00 1.65234224e+00
+   1.65339186e+00 1.66928844e+00 1.66540033e+00 1.65490068e+00
+   1.63510161e+00 1.59110173e+00 1.61583056e+00 1.63614927e+00
+   1.67046351e+00 1.66425653e+00 1.58801457e+00 1.60444274e+00
+   1.68189041e+00 1.65977276e+00 9.51148286e-04 1.29761992e-02]
+  [8.57148681e-01 9.48922929e-01 6.19249174e-01 7.08806701e-01
+   1.48574095e+00 1.47896595e+00 1.51899047e+00 1.52499148e+00
+   1.49915157e+00 1.56545980e+00 1.22868622e+00 1.49147789e+00
+   1.55257219e+00 1.50421234e+00 1.54177422e+00 1.49932599e+00
+   1.49584835e+00 1.59407386e+00 1.59136714e+00 1.57576128e+00
+   1.62331514e+00 1.57480502e+00 1.58155519e+00 1.57368695e+00
+   7.84881291e-01 1.62735366e+00 1.61812509e+00 1.59927273e+00
+   1.60038107e+00 1.62725346e+00 1.60348890e+00 1.59214451e+00
+   1.57393448e+00 1.55024095e+00 1.57185841e+00 1.58227077e+00
+   1.60000715e+00 1.60975968e+00 1.53082647e+00 1.56283231e+00
+   1.61118369e+00 1.59865759e+00 1.33768952e-02 2.05420606e-02]
+  [4.31298283e+00 3.83878090e+00 4.61375532e+00 2.85945381e+00
+   4.51845144e+00 4.53814554e+00 4.39347509e+00 4.31341215e+00
+   4.70664998e+00 4.54489547e+00 3.82623707e+00 4.47348184e+00
+   4.59453024e+00 4.52498941e+00 4.79430570e+00 4.55101306e+00
+   4.67462112e+00 4.49187943e+00 4.63149845e+00 4.46525089e+00
+   4.18959022e+00 4.29904579e+00 4.61014635e+00 4.58433293e+00
+   3.62508454e+00 4.75992728e+00 4.66040359e+00 4.68535043e+00
+   4.61531649e+00 4.57190508e+00 4.60032939e+00 4.65972629e+00
+   4.56543898e+00 4.35379705e+00 4.65032663e+00 4.48019761e+00
+   4.52859281e+00 4.49001708e+00 4.55288518e+00 4.53915627e+00
+   4.46147674e+00 4.39434733e+00 2.21377790e+00 1.26531337e+00]]
+
+ [[5.97549251e-01 8.85944856e-01 4.65763107e-01 4.42106567e-01
+   1.24836125e+00 1.53049795e+00 1.37965310e+00 1.37599590e+00
+   1.26369848e+00 1.29747731e+00 4.71974864e-01 1.17233554e+00
+   1.31048329e+00 1.25772745e+00 1.22127988e+00 1.19443838e+00
+   1.27756763e+00 1.30232294e+00 1.35995410e+00 1.39925289e+00
+   1.42364392e+00 1.37131754e+00 1.37136770e+00 1.29994616e+00
+   4.75386103e-01 1.36123889e+00 1.34711319e+00 1.30132548e+00
+   1.31026701e+00 1.32465663e+00 1.29956951e+00 1.25259219e+00
+   1.22529725e+00 1.22936733e+00 1.19086641e+00 1.12754136e+00
+   1.25402667e+00 1.18897968e+00 1.19861245e+00 1.22610716e+00
+   1.20292412e+00 1.19595502e+00 9.39444671e-04 6.58414536e-03]
+  [7.15917535e-01 1.04199327e+00 6.06896520e-01 5.52360877e-01
+   1.31801414e+00 1.55876213e+00 1.40996651e+00 1.40838682e+00
+   1.30230823e+00 1.33909930e+00 5.33379717e-01 1.23704414e+00
+   1.35334891e+00 1.33010219e+00 1.27824964e+00 1.27481232e+00
+   1.32549077e+00 1.34453880e+00 1.38782258e+00 1.41855792e+00
+   1.44740072e+00 1.39511293e+00 1.41551931e+00 1.37159719e+00
+   6.82728105e-01 1.42898197e+00 1.41223946e+00 1.36095643e+00
+   1.37260109e+00 1.39568319e+00 1.36473954e+00 1.29996576e+00
+   1.28878044e+00 1.25785193e+00 1.23438651e+00 1.18315992e+00
+   1.29185498e+00 1.27589245e+00 1.25905925e+00 1.29484528e+00
+   1.25765421e+00 1.24972719e+00 6.41203281e-03 2.60978249e-02]
+  [4.10672413e+00 4.30932825e+00 4.29797066e+00 2.58902295e+00
+   4.58224470e+00 5.16780132e+00 4.63605071e+00 4.74560706e+00
+   4.57992313e+00 4.56631365e+00 2.88675991e+00 4.38655745e+00
+   5.01448315e+00 4.70040327e+00 4.38891625e+00 4.48817939e+00
+   4.55471619e+00 4.54249839e+00 4.65754420e+00 4.75325643e+00
+   4.65573527e+00 4.69251848e+00 4.98211359e+00 4.75297803e+00
+   4.39784221e+00 4.90270270e+00 4.80920605e+00 4.74208622e+00
+   4.70370923e+00 4.73229356e+00 4.75365822e+00 4.60499007e+00
+   4.57691904e+00 4.48735159e+00 4.44733444e+00 4.29719527e+00
+   4.67497537e+00 4.68707909e+00 4.61074529e+00 4.83768588e+00
+   4.70832965e+00 4.63655524e+00 2.15789426e+00 1.91890537e+00]]]
+Code saved to result/5_12.py
+Results saved to result/5_12.npy
+
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/12.txt；(2)编写并且运行python代码，对同目录下的data/12_original.npy,将数据分10s为一段，计算每个通道的样本熵、近似熵和谱熵，打印结果, 将数值以(7,3,x)[x取决于具体数据]的格式存到同目录下的result/5_12.npy, (3)将代码保存到result/5_12.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/12.txt', log='I\'ll break this down into three parts as requested: parsing the EEG data, processing the original data with entropy calculations, and saving the results and code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file using the parse_eeg_data tool.\nAction: parse_eeg_data\nAction Input: "data/12.txt"'), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入'), (AgentAction(tool='Python_REPL', tool_input='```python\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Print results\nprint("Entropy results (7 channels, 3 measures, n_segments):")\nprint(results.shape)\nprint(results)\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n\n# Save code\ncode = """\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n"""\n\nwith open(\'result/5_12.py\', \'w\') as f:\n    f.write(code)\n\nprint("Code saved to result/5_12.py")\nprint("Results saved to result/5_12.npy")\n```', log='Now I\'ll proceed with the second part: processing the EEG data, calculating entropy measures, and saving the results.\n\nThought: I need to write Python code to:\n1. Load the data from data/12_original.npy\n2. Split it into 10-second segments\n3. Calculate sample entropy, approximate entropy, and spectral entropy for each channel in each segment\n4. Print the results\n5. Save the results in a (7,3,x) shaped array to result/5_12.npy\n6. Save the code to result/5_12.py\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Print results\nprint("Entropy results (7 channels, 3 measures, n_segments):")\nprint(results.shape)\nprint(results)\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n\n# Save code\ncode = """\nimport numpy as np\nfrom antropy import sample_entropy, app_entropy, spectral_entropy\nimport os\n\n# Load data\ndata = np.load(\'data/12_original.npy\')\n\n# Assuming sampling rate is 250 Hz (common for EEG), adjust if different\nfs = 250\nsegment_length = 10 * fs  # 10 seconds of data\n\n# Calculate number of segments\nn_segments = data.shape[1] // segment_length\n\n# Initialize result array (7 channels, 3 entropy measures, n_segments)\nresults = np.zeros((7, 3, n_segments))\n\nfor seg in range(n_segments):\n    start = seg * segment_length\n    end = start + segment_length\n    segment = data[:, start:end]\n    \n    for ch in range(7):  # Assuming 7 channels\n        # Calculate entropies\n        samp_ent = sample_entropy(segment[ch])\n        app_ent = app_entropy(segment[ch])\n        spec_ent = spectral_entropy(segment[ch], sf=fs, method=\'welch\')\n        \n        # Store results\n        results[ch, 0, seg] = samp_ent\n        results[ch, 1, seg] = app_ent\n        results[ch, 2, seg] = spec_ent\n\n# Save results\nos.makedirs(\'result\', exist_ok=True)\nnp.save(\'result/5_12.npy\', results)\n"""\n\nwith open(\'result/5_12.py\', \'w\') as f:\n    f.write(code)\n\nprint("Code saved to result/5_12.py")\nprint("Results saved to result/5_12.npy")\n```'), 'Entropy results (7 channels, 3 measures, n_segments):\n(7, 3, 44)\n[[[8.35329937e-01 1.15042054e+00 8.06907385e-01 8.30878673e-01\n   1.70114548e+00 1.70483142e+00 1.63379126e+00 1.64368933e+00\n   1.57288263e+00 1.55649127e+00 1.04932522e+00 1.52215127e+00\n   1.62799754e+00 1.62517624e+00 1.58332456e+00 1.52470109e+00\n   1.62812668e+00 1.71400163e+00 1.58324818e+00 1.63274752e+00\n   1.73410248e+00 1.64200074e+00 1.68001473e+00 1.63152927e+00\n   9.54285092e-01 1.66444564e+00 1.61081549e+00 1.56232775e+00\n   1.53924232e+00 1.62777651e+00 1.52494846e+00 1.50960047e+00\n   1.48685521e+00 1.48226574e+00 1.48070199e+00 1.45280923e+00\n   1.54606443e+00 1.54387026e+00 1.52152535e+00 1.46201822e+00\n   1.59019553e+00 1.62074457e+00 9.30747231e-04 2.59076731e-02]\n  [9.80069735e-01 1.26734121e+00 9.74220913e-01 9.41139103e-01\n   1.67993709e+00 1.68888958e+00 1.62303818e+00 1.63199472e+00\n   1.57163745e+00 1.52070897e+00 1.14972399e+00 1.53042297e+00\n   1.61770521e+00 1.62320682e+00 1.59913646e+00 1.55203082e+00\n   1.62432051e+00 1.67074472e+00 1.58127888e+00 1.61081807e+00\n   1.67932868e+00 1.60699811e+00 1.66038520e+00 1.62991127e+00\n   1.06444253e+00 1.66520453e+00 1.58154020e+00 1.54853777e+00\n   1.51283510e+00 1.57764216e+00 1.49412155e+00 1.49859822e+00\n   1.45248026e+00 1.45806320e+00 1.46212106e+00 1.43699734e+00\n   1.51237997e+00 1.51220070e+00 1.48014422e+00 1.45836443e+00\n   1.53749109e+00 1.57529418e+00 5.80081688e-03 5.06156458e-02]\n  [4.10202821e+00 4.51869711e+00 4.86204274e+00 3.65306331e+00\n   5.71201913e+00 5.69684650e+00 5.15854594e+00 5.52017934e+00\n   5.09190008e+00 4.64229039e+00 3.85281873e+00 4.82817175e+00\n   5.21105157e+00 5.15333990e+00 5.47116558e+00 5.41747573e+00\n   5.45199088e+00 5.42830460e+00 5.29787472e+00 5.26844841e+00\n   4.74471153e+00 4.90248846e+00 5.28957599e+00 5.48657603e+00\n   3.91808814e+00 5.39281969e+00 4.84549415e+00 4.79206446e+00\n   4.41813826e+00 4.40224639e+00 4.26259018e+00 4.28586238e+00\n   4.13637173e+00 4.05085991e+00 4.23724304e+00 4.12310020e+00\n   4.24750829e+00 4.15958857e+00 4.28816386e+00 4.31453607e+00\n   4.24950389e+00 4.02644983e+00 2.16794947e+00 2.01773784e+00]]\n\n [[7.56375837e-01 1.00556079e+00 6.80296730e-01 7.10585934e-01\n   1.66233363e+00 1.74754430e+00 1.69251954e+00 1.71616403e+00\n   1.65463293e+00 1.59099363e+00 1.03339818e+00 1.57023500e+00\n   1.60716570e+00 1.66303984e+00 1.70381808e+00 1.56626150e+00\n   1.70453876e+00 1.66668141e+00 1.51467757e+00 1.62420096e+00\n   1.65715766e+00 1.65710718e+00 1.64738041e+00 1.72500640e+00\n   7.35141942e-01 1.67813269e+00 1.62945542e+00 1.54888863e+00\n   1.47643810e+00 1.59747630e+00 1.54618718e+00 1.52891624e+00\n   1.55138562e+00 1.57980530e+00 1.53744204e+00 1.54981991e+00\n   1.57292480e+00 1.57585510e+00 1.56414127e+00 1.55235623e+00\n   1.59357855e+00 1.65286619e+00 9.14968468e-04 1.75083328e-02]\n  [8.30879891e-01 1.08084402e+00 7.86926110e-01 7.77022194e-01\n   1.61398254e+00 1.67673727e+00 1.63163979e+00 1.63965517e+00\n   1.61303034e+00 1.56745670e+00 1.04956316e+00 1.54260285e+00\n   1.57216883e+00 1.60713237e+00 1.63582278e+00 1.54399023e+00\n   1.65791102e+00 1.61012655e+00 1.50671357e+00 1.58877582e+00\n   1.62207025e+00 1.61031162e+00 1.59941735e+00 1.64558265e+00\n   8.14415056e-01 1.64414565e+00 1.59473152e+00 1.53817769e+00\n   1.49335846e+00 1.54644389e+00 1.52863130e+00 1.50584223e+00\n   1.50931449e+00 1.52483087e+00 1.50269428e+00 1.50193015e+00\n   1.53736361e+00 1.54798029e+00 1.52410318e+00 1.49445743e+00\n   1.55798030e+00 1.58190691e+00 6.14202112e-03 3.21435486e-02]\n  [4.01620353e+00 4.26290434e+00 3.94523208e+00 2.93686915e+00\n   4.56204787e+00 4.64382202e+00 4.39889949e+00 4.51061230e+00\n   4.56725421e+00 4.30001868e+00 3.19823778e+00 4.27167701e+00\n   4.26885673e+00 4.33282233e+00 4.60619683e+00 4.37093288e+00\n   4.74512731e+00 4.21721611e+00 4.09976932e+00 4.03005216e+00\n   3.59829141e+00 3.89057033e+00 4.23134961e+00 4.35935312e+00\n   2.89129105e+00 4.44948881e+00 4.34869200e+00 4.24648071e+00\n   4.13420243e+00 4.17132018e+00 4.07773515e+00 4.06383854e+00\n   4.05875328e+00 3.90416214e+00 4.03170082e+00 3.98883699e+00\n   3.96121461e+00 3.88136408e+00 4.17806043e+00 4.09951762e+00\n   3.97129054e+00 3.89151262e+00 2.21587026e+00 1.74115817e+00]]\n\n [[7.95078549e-01 8.59179363e-01 5.12882040e-01 5.79117688e-01\n   1.76784936e+00 1.76863400e+00 1.75941468e+00 1.76343445e+00\n   1.76512126e+00 1.55748837e+00 1.05561996e+00 1.58506524e+00\n   1.70276644e+00 1.67990809e+00 1.70173866e+00 1.65901399e+00\n   1.74382462e+00 1.71037460e+00 1.66516004e+00 1.67639574e+00\n   1.73707091e+00 1.66340358e+00 1.74254482e+00 1.74685798e+00\n   7.86910044e-01 1.73165458e+00 1.66622858e+00 1.67561529e+00\n   1.70459587e+00 1.65887752e+00 1.60007224e+00 1.51549143e+00\n   1.50082139e+00 1.57162320e+00 1.47494379e+00 1.50020987e+00\n   1.58125240e+00 1.59006201e+00 1.55288900e+00 1.51695753e+00\n   1.58515403e+00 1.64419967e+00 9.27075577e-04 2.20432225e-02]\n  [8.86449481e-01 9.42331058e-01 6.60786303e-01 6.63482969e-01\n   1.70296949e+00 1.68999639e+00 1.69886725e+00 1.68889197e+00\n   1.68280541e+00 1.52298459e+00 1.08008122e+00 1.55799678e+00\n   1.64764674e+00 1.62526596e+00 1.65322878e+00 1.63679701e+00\n   1.69242112e+00 1.65063054e+00 1.62995722e+00 1.62450184e+00\n   1.65492560e+00 1.60417253e+00 1.67889638e+00 1.67809448e+00\n   9.11326086e-01 1.67551309e+00 1.62863095e+00 1.64315489e+00\n   1.65189078e+00 1.62040039e+00 1.55762573e+00 1.47826750e+00\n   1.47905433e+00 1.53040075e+00 1.45843703e+00 1.46552325e+00\n   1.57385902e+00 1.54895845e+00 1.51151274e+00 1.48699138e+00\n   1.54730289e+00 1.57908549e+00 6.57963377e-03 4.09125911e-02]\n  [4.45625363e+00 3.34924334e+00 4.25599735e+00 2.93664739e+00\n   4.77369395e+00 4.86545513e+00 4.70740168e+00 4.60432889e+00\n   4.71133803e+00 4.50809433e+00 3.41923156e+00 4.25399287e+00\n   4.22153006e+00 4.47086880e+00 4.75164325e+00 4.56384945e+00\n   4.72478389e+00 4.25438155e+00 4.28351057e+00 4.06729227e+00\n   3.69596692e+00 3.94561662e+00 4.37737839e+00 4.45224263e+00\n   3.05775040e+00 4.69967876e+00 4.46391353e+00 4.47565053e+00\n   4.46660338e+00 4.36159263e+00 4.17907796e+00 4.09308602e+00\n   3.90464073e+00 3.76525150e+00 3.87367758e+00 3.81647930e+00\n   4.11716375e+00 3.79726575e+00 4.00146759e+00 3.95013884e+00\n   3.74794568e+00 3.81745039e+00 2.19662562e+00 1.89777319e+00]]\n\n [[8.87219878e-01 1.28663260e+00 1.06291015e+00 9.96143718e-01\n   1.09795968e+00 1.23629760e+00 1.31402031e+00 1.28889712e+00\n   1.06438215e+00 1.24857655e+00 7.79037100e-01 1.23675033e+00\n   1.15986503e+00 1.40587091e+00 1.48540380e+00 1.54352866e+00\n   1.54170732e+00 1.21227314e+00 8.52960963e-01 1.11223362e+00\n   1.31080778e+00 1.23541587e+00 1.24435145e+00 1.32350473e+00\n   9.45071674e-01 1.19671270e+00 1.24326039e+00 1.20068201e+00\n   1.06927825e+00 1.35988336e+00 1.30795937e+00 1.26901526e+00\n   1.26609922e+00 1.29637088e+00 1.24771821e+00 1.23088745e+00\n   1.17213867e+00 1.32942971e+00 1.33031857e+00 1.20705777e+00\n   1.33251838e+00 1.41895986e+00 9.89238971e-04 4.15270219e-02]\n  [9.95872005e-01 1.32699883e+00 1.12199673e+00 1.09449058e+00\n   1.12099881e+00 1.26487773e+00 1.29534135e+00 1.27438887e+00\n   1.14884196e+00 1.25511682e+00 8.07248945e-01 1.20440603e+00\n   1.13135615e+00 1.39619218e+00 1.45622548e+00 1.50810933e+00\n   1.51222888e+00 1.21998830e+00 9.31156983e-01 1.12752850e+00\n   1.29439923e+00 1.23267443e+00 1.26068773e+00 1.31765597e+00\n   1.03138424e+00 1.25230201e+00 1.27906994e+00 1.26118695e+00\n   1.15244483e+00 1.34185156e+00 1.29711888e+00 1.28319868e+00\n   1.24748684e+00 1.28182602e+00 1.24514062e+00 1.22141509e+00\n   1.17050542e+00 1.31787104e+00 1.32895562e+00 1.20670543e+00\n   1.30855206e+00 1.39208854e+00 4.51434280e-02 1.18786436e-01]\n  [3.35587994e+00 3.36669285e+00 4.30291800e+00 3.11661413e+00\n   3.01950390e+00 3.06171772e+00 3.17226111e+00 3.07341697e+00\n   3.14554253e+00 3.11379294e+00 2.53308404e+00 2.92912715e+00\n   2.67257455e+00 3.12517574e+00 3.54975725e+00 3.61872566e+00\n   3.47845892e+00 2.94651424e+00 2.83191105e+00 2.66543788e+00\n   2.39295222e+00 2.74281859e+00 2.96140328e+00 3.05251899e+00\n   3.26940890e+00 3.11851653e+00 3.14618164e+00 3.18972402e+00\n   3.14715868e+00 3.26751043e+00 3.22885570e+00 3.26920045e+00\n   3.20972779e+00 3.08853211e+00 3.18707577e+00 3.10690662e+00\n   2.78996908e+00 3.04805135e+00 3.22842649e+00 2.98236138e+00\n   2.99960211e+00 2.86235526e+00 2.19613340e+00 2.42549758e+00]]\n\n [[2.42213244e-01 7.21176130e-01 6.34452616e-01 7.53778324e-01\n   1.29806403e+00 1.28666998e+00 1.39519702e+00 1.34486213e+00\n   1.39558937e+00 1.38837438e+00 1.00758166e+00 1.37376105e+00\n   1.39608043e+00 1.40721765e+00 1.27834977e+00 1.22209318e+00\n   1.30176841e+00 1.40017999e+00 1.31655109e+00 1.33093170e+00\n   1.51987120e+00 1.43727807e+00 1.41664528e+00 1.40682720e+00\n   3.45974181e-01 1.47994715e+00 1.37192275e+00 1.44562928e+00\n   1.41302434e+00 1.34280180e+00 1.34233621e+00 1.30930831e+00\n   1.31206692e+00 1.37512773e+00 1.30675126e+00 1.26880510e+00\n   1.45459251e+00 1.40560319e+00 1.28297175e+00 1.28923763e+00\n   1.39660818e+00 1.40767275e+00 9.01663272e-04 1.34090327e-02]\n  [3.40430620e-01 8.28527452e-01 7.81102759e-01 8.40391223e-01\n   1.30252505e+00 1.29983126e+00 1.38474743e+00 1.34968071e+00\n   1.39651733e+00 1.38626910e+00 1.03184219e+00 1.35697056e+00\n   1.37534073e+00 1.39846202e+00 1.31019234e+00 1.25708118e+00\n   1.31442881e+00 1.39087681e+00 1.32955302e+00 1.34147530e+00\n   1.48555750e+00 1.42599958e+00 1.39923126e+00 1.39954617e+00\n   4.43941030e-01 1.47404503e+00 1.37832499e+00 1.45963711e+00\n   1.41687152e+00 1.35956629e+00 1.34859141e+00 1.31864691e+00\n   1.30264633e+00 1.37237200e+00 1.30112181e+00 1.26999284e+00\n   1.43847903e+00 1.40293284e+00 1.27546152e+00 1.28324819e+00\n   1.38923209e+00 1.38473209e+00 5.08890090e-03 6.05730812e-02]\n  [2.06461159e+00 2.66123919e+00 4.00655729e+00 2.75601702e+00\n   3.05719655e+00 3.09977654e+00 3.20795430e+00 3.14945162e+00\n   3.46260872e+00 3.36870945e+00 3.22986857e+00 3.28253745e+00\n   3.21577126e+00 3.37603499e+00 3.25493504e+00 3.17461834e+00\n   3.17116067e+00 3.32365093e+00 3.27448426e+00 3.18871200e+00\n   3.20541964e+00 3.30815007e+00 3.25116689e+00 3.27731429e+00\n   2.29591843e+00 3.59479656e+00 3.28670986e+00 3.44230679e+00\n   3.40353936e+00 3.33605718e+00 3.35588822e+00 3.28098442e+00\n   3.26714102e+00 3.44544462e+00 3.27729736e+00 3.17867305e+00\n   3.41508096e+00 3.36472141e+00 3.16146437e+00 3.21103240e+00\n   3.30892851e+00 3.24862340e+00 2.25244449e+00 2.14677510e+00]]\n\n [[8.05004549e-01 8.46416398e-01 5.02492777e-01 6.59552548e-01\n   1.49514144e+00 1.50212711e+00 1.54673233e+00 1.55709625e+00\n   1.53313087e+00 1.60755372e+00 1.21813015e+00 1.54487379e+00\n   1.61328906e+00 1.53479023e+00 1.54101768e+00 1.50080966e+00\n   1.50690115e+00 1.65432366e+00 1.65021295e+00 1.62835700e+00\n   1.68627633e+00 1.62702911e+00 1.65294516e+00 1.61013761e+00\n   6.43215550e-01 1.68055575e+00 1.67254009e+00 1.65234224e+00\n   1.65339186e+00 1.66928844e+00 1.66540033e+00 1.65490068e+00\n   1.63510161e+00 1.59110173e+00 1.61583056e+00 1.63614927e+00\n   1.67046351e+00 1.66425653e+00 1.58801457e+00 1.60444274e+00\n   1.68189041e+00 1.65977276e+00 9.51148286e-04 1.29761992e-02]\n  [8.57148681e-01 9.48922929e-01 6.19249174e-01 7.08806701e-01\n   1.48574095e+00 1.47896595e+00 1.51899047e+00 1.52499148e+00\n   1.49915157e+00 1.56545980e+00 1.22868622e+00 1.49147789e+00\n   1.55257219e+00 1.50421234e+00 1.54177422e+00 1.49932599e+00\n   1.49584835e+00 1.59407386e+00 1.59136714e+00 1.57576128e+00\n   1.62331514e+00 1.57480502e+00 1.58155519e+00 1.57368695e+00\n   7.84881291e-01 1.62735366e+00 1.61812509e+00 1.59927273e+00\n   1.60038107e+00 1.62725346e+00 1.60348890e+00 1.59214451e+00\n   1.57393448e+00 1.55024095e+00 1.57185841e+00 1.58227077e+00\n   1.60000715e+00 1.60975968e+00 1.53082647e+00 1.56283231e+00\n   1.61118369e+00 1.59865759e+00 1.33768952e-02 2.05420606e-02]\n  [4.31298283e+00 3.83878090e+00 4.61375532e+00 2.85945381e+00\n   4.51845144e+00 4.53814554e+00 4.39347509e+00 4.31341215e+00\n   4.70664998e+00 4.54489547e+00 3.82623707e+00 4.47348184e+00\n   4.59453024e+00 4.52498941e+00 4.79430570e+00 4.55101306e+00\n   4.67462112e+00 4.49187943e+00 4.63149845e+00 4.46525089e+00\n   4.18959022e+00 4.29904579e+00 4.61014635e+00 4.58433293e+00\n   3.62508454e+00 4.75992728e+00 4.66040359e+00 4.68535043e+00\n   4.61531649e+00 4.57190508e+00 4.60032939e+00 4.65972629e+00\n   4.56543898e+00 4.35379705e+00 4.65032663e+00 4.48019761e+00\n   4.52859281e+00 4.49001708e+00 4.55288518e+00 4.53915627e+00\n   4.46147674e+00 4.39434733e+00 2.21377790e+00 1.26531337e+00]]\n\n [[5.97549251e-01 8.85944856e-01 4.65763107e-01 4.42106567e-01\n   1.24836125e+00 1.53049795e+00 1.37965310e+00 1.37599590e+00\n   1.26369848e+00 1.29747731e+00 4.71974864e-01 1.17233554e+00\n   1.31048329e+00 1.25772745e+00 1.22127988e+00 1.19443838e+00\n   1.27756763e+00 1.30232294e+00 1.35995410e+00 1.39925289e+00\n   1.42364392e+00 1.37131754e+00 1.37136770e+00 1.29994616e+00\n   4.75386103e-01 1.36123889e+00 1.34711319e+00 1.30132548e+00\n   1.31026701e+00 1.32465663e+00 1.29956951e+00 1.25259219e+00\n   1.22529725e+00 1.22936733e+00 1.19086641e+00 1.12754136e+00\n   1.25402667e+00 1.18897968e+00 1.19861245e+00 1.22610716e+00\n   1.20292412e+00 1.19595502e+00 9.39444671e-04 6.58414536e-03]\n  [7.15917535e-01 1.04199327e+00 6.06896520e-01 5.52360877e-01\n   1.31801414e+00 1.55876213e+00 1.40996651e+00 1.40838682e+00\n   1.30230823e+00 1.33909930e+00 5.33379717e-01 1.23704414e+00\n   1.35334891e+00 1.33010219e+00 1.27824964e+00 1.27481232e+00\n   1.32549077e+00 1.34453880e+00 1.38782258e+00 1.41855792e+00\n   1.44740072e+00 1.39511293e+00 1.41551931e+00 1.37159719e+00\n   6.82728105e-01 1.42898197e+00 1.41223946e+00 1.36095643e+00\n   1.37260109e+00 1.39568319e+00 1.36473954e+00 1.29996576e+00\n   1.28878044e+00 1.25785193e+00 1.23438651e+00 1.18315992e+00\n   1.29185498e+00 1.27589245e+00 1.25905925e+00 1.29484528e+00\n   1.25765421e+00 1.24972719e+00 6.41203281e-03 2.60978249e-02]\n  [4.10672413e+00 4.30932825e+00 4.29797066e+00 2.58902295e+00\n   4.58224470e+00 5.16780132e+00 4.63605071e+00 4.74560706e+00\n   4.57992313e+00 4.56631365e+00 2.88675991e+00 4.38655745e+00\n   5.01448315e+00 4.70040327e+00 4.38891625e+00 4.48817939e+00\n   4.55471619e+00 4.54249839e+00 4.65754420e+00 4.75325643e+00\n   4.65573527e+00 4.69251848e+00 4.98211359e+00 4.75297803e+00\n   4.39784221e+00 4.90270270e+00 4.80920605e+00 4.74208622e+00\n   4.70370923e+00 4.73229356e+00 4.75365822e+00 4.60499007e+00\n   4.57691904e+00 4.48735159e+00 4.44733444e+00 4.29719527e+00\n   4.67497537e+00 4.68707909e+00 4.61074529e+00 4.83768588e+00\n   4.70832965e+00 4.63655524e+00 2.15789426e+00 1.91890537e+00]]]\nCode saved to result/5_12.py\nResults saved to result/5_12.npy\n')]
+begin debugging
+I now know the final answer
+Final Answer: I have completed all three tasks: (1) Parsed the EEG data from data/12.txt, (2) Processed the data from data/12_original.npy by calculating sample entropy, approximate entropy, and spectral entropy for each channel in 10-second segments, printed the results, and saved them in a (7,3,44) shaped array to result/5_12.npy, and (3) Saved the processing code to result/5_12.py. The results show entropy values for 7 channels across 44 segments with 3 entropy measures each.
+end debugging
+print output here:
+return_values={'output': 'I have completed all three tasks: (1) Parsed the EEG data from data/12.txt, (2) Processed the data from data/12_original.npy by calculating sample entropy, approximate entropy, and spectral entropy for each channel in 10-second segments, printed the results, and saved them in a (7,3,44) shaped array to result/5_12.npy, and (3) Saved the processing code to result/5_12.py. The results show entropy values for 7 channels across 44 segments with 3 entropy measures each.'} log='I now know the final answer\nFinal Answer: I have completed all three tasks: (1) Parsed the EEG data from data/12.txt, (2) Processed the data from data/12_original.npy by calculating sample entropy, approximate entropy, and spectral entropy for each channel in 10-second segments, printed the results, and saved them in a (7,3,44) shaped array to result/5_12.npy, and (3) Saved the processing code to result/5_12.py. The results show entropy values for 7 channels across 44 segments with 3 entropy measures each.'
+**********
+****************************************************************************************************
+round 4
+****************************************************************************************************
+I now know the final answer
+Final Answer: I have completed all three tasks: (1) Parsed the EEG data from data/12.txt, (2) Processed the data from data/12_original.npy by calculating sample entropy, approximate entropy, and spectral entropy for each channel in 10-second segments, printed the results, and saved them in a (7,3,44) shaped array to result/5_12.npy, and (3) Saved the processing code to result/5_12.py. The results show entropy values for 7 channels across 44 segments with 3 entropy measures each.

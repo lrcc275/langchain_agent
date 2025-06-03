@@ -1,0 +1,236 @@
+enter function stream
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/80.txt；(2)编写并且运行python代码，对同目录下的data/80_original.npy,计算每个通道的峰峰值、均值和方差，打印结果, 将数值以(7,3)的格式存到同目录下的result/1_80.npy, (3)将代码保存到result/1_80.py'}
+[]
+begin debugging
+I need to perform three tasks: parse EEG data from a text file, process a numpy array to compute peak-to-peak, mean, and variance for each channel, and save the results and code. Let's break it down step by step.
+
+1. First, I'll parse the EEG data from the specified text file.
+2. Then, I'll write Python code to process the numpy array and compute the required statistics.
+3. Finally, I'll save the results and the code to the specified locations.
+
+Let's start with the first task.
+
+Action: parse_eeg_data
+Action Input: "data/80.txt"
+end debugging
+print output here:
+tool='parse_eeg_data' tool_input='data/80.txt' log='I need to perform three tasks: parse EEG data from a text file, process a numpy array to compute peak-to-peak, mean, and variance for each channel, and save the results and code. Let\'s break it down step by step.\n\n1. First, I\'ll parse the EEG data from the specified text file.\n2. Then, I\'ll write Python code to process the numpy array and compute the required statistics.\n3. Finally, I\'ll save the results and the code to the specified locations.\n\nLet\'s start with the first task.\n\nAction: parse_eeg_data\nAction Input: "data/80.txt"'
+**********
+****************************************************************************************************
+round 0
+****************************************************************************************************
+I need to perform three tasks: parse EEG data from a text file, process a numpy array to compute peak-to-peak, mean, and variance for each channel, and save the results and code. Let's break it down step by step.
+
+1. First, I'll parse the EEG data from the specified text file.
+2. Then, I'll write Python code to process the numpy array and compute the required statistics.
+3. Finally, I'll save the results and the code to the specified locations.
+
+Let's start with the first task.
+
+: parse_eeg_data
+ Input: "data/80.txt"
+**********
+enter function perform_agent_action
+tool='parse_eeg_data' tool_input='data/80.txt' log='I need to perform three tasks: parse EEG data from a text file, process a numpy array to compute peak-to-peak, mean, and variance for each channel, and save the results and code. Let\'s break it down step by step.\n\n1. First, I\'ll parse the EEG data from the specified text file.\n2. Then, I\'ll write Python code to process the numpy array and compute the required statistics.\n3. Finally, I\'ll save the results and the code to the specified locations.\n\nLet\'s start with the first task.\n\nAction: parse_eeg_data\nAction Input: "data/80.txt"'
+**********
+**********
+enter function perform_agent_action lookup true branch
+你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入
+**********
+****************************************************************************************************
+round 1
+****************************************************************************************************
+你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/80.txt；(2)编写并且运行python代码，对同目录下的data/80_original.npy,计算每个通道的峰峰值、均值和方差，打印结果, 将数值以(7,3)的格式存到同目录下的result/1_80.npy, (3)将代码保存到result/1_80.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/80.txt', log='I need to perform three tasks: parse EEG data from a text file, process a numpy array to compute peak-to-peak, mean, and variance for each channel, and save the results and code. Let\'s break it down step by step.\n\n1. First, I\'ll parse the EEG data from the specified text file.\n2. Then, I\'ll write Python code to process the numpy array and compute the required statistics.\n3. Finally, I\'ll save the results and the code to the specified locations.\n\nLet\'s start with the first task.\n\nAction: parse_eeg_data\nAction Input: "data/80.txt"'), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入')]
+begin debugging
+Now that the EEG data has been parsed from the text file, I'll proceed to the second task: processing the numpy array to compute the required statistics and saving the results.
+
+I'll write Python code to:
+1. Load the numpy array from 'data/80_original.npy'
+2. Compute peak-to-peak (max - min), mean, and variance for each channel
+3. Print the results
+4. Save the computed values in a (7,3) shaped array to 'result/1_80.npy'
+
+Here's the Python code to accomplish this:
+
+Action: Python_REPL
+Action Input:
+```python
+import numpy as np
+
+# Load the data
+data = np.load('data/80_original.npy')
+
+# Compute statistics for each channel
+peak_to_peak = np.ptp(data, axis=1)
+means = np.mean(data, axis=1)
+variances = np.var(data, axis=1)
+
+# Combine results into (7,3) array
+results = np.column_stack((peak_to_peak, means, variances))
+
+# Print results
+print("Channel Statistics:")
+print("Peak-to-Peak\tMean\t\tVariance")
+for i, (pp, mean, var) in enumerate(results):
+    print(f"Channel {i+1}: {pp:.3f}\t{mean:.3f}\t{var:.3f}")
+
+# Save results
+np.save('result/1_80.npy', results)
+
+# Save the code to a file
+code = '''import numpy as np
+
+# Load the data
+data = np.load('data/80_original.npy')
+
+# Compute statistics for each channel
+peak_to_peak = np.ptp(data, axis=1)
+means = np.mean(data, axis=1)
+variances = np.var(data, axis=1)
+
+# Combine results into (7,3) array
+results = np.column_stack((peak_to_peak, means, variances))
+
+# Print results
+print("Channel Statistics:")
+print("Peak-to-Peak\\tMean\\t\\tVariance")
+for i, (pp, mean, var) in enumerate(results):
+    print(f"Channel {i+1}: {pp:.3f}\\t{mean:.3f}\\t{var:.3f}")
+
+# Save results
+np.save('result/1_80.npy', results)
+'''
+
+with open('result/1_80.py', 'w') as f:
+    f.write(code)
+```
+end debugging
+print output here:
+tool='Python_REPL' tool_input='```python\nimport numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\tMean\\t\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\t{mean:.3f}\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\\\tMean\\\\t\\\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\\\t{mean:.3f}\\\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\'\'\'\n\nwith open(\'result/1_80.py\', \'w\') as f:\n    f.write(code)\n```' log='Now that the EEG data has been parsed from the text file, I\'ll proceed to the second task: processing the numpy array to compute the required statistics and saving the results.\n\nI\'ll write Python code to:\n1. Load the numpy array from \'data/80_original.npy\'\n2. Compute peak-to-peak (max - min), mean, and variance for each channel\n3. Print the results\n4. Save the computed values in a (7,3) shaped array to \'result/1_80.npy\'\n\nHere\'s the Python code to accomplish this:\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\tMean\\t\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\t{mean:.3f}\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\\\tMean\\\\t\\\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\\\t{mean:.3f}\\\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\'\'\'\n\nwith open(\'result/1_80.py\', \'w\') as f:\n    f.write(code)\n```'
+**********
+****************************************************************************************************
+round 2
+****************************************************************************************************
+Now that the EEG data has been parsed from the text file, I'll proceed to the second task: processing the numpy array to compute the required statistics and saving the results.
+
+I'll write Python code to:
+1. Load the numpy array from 'data/80_original.npy'
+2. Compute peak-to-peak (max - min), mean, and variance for each channel
+3. Print the results
+4. Save the computed values in a (7,3) shaped array to 'result/1_80.npy'
+
+Here's the Python code to accomplish this:
+
+: Python_REPL
+ Input:
+```python
+import numpy as np
+
+# Load the data
+data = np.load('data/80_original.npy')
+
+# Compute statistics for each channel
+peak_to_peak = np.ptp(data, axis=1)
+means = np.mean(data, axis=1)
+variances = np.var(data, axis=1)
+
+# Combine results into (7,3) array
+results = np.column_stack((peak_to_peak, means, variances))
+
+# Print results
+print("Channel Statistics:")
+print("Peak-to-Peak\tMean\t\tVariance")
+for i, (pp, mean, var) in enumerate(results):
+    print(f"Channel {i+1}: {pp:.3f}\t{mean:.3f}\t{var:.3f}")
+
+# Save results
+np.save('result/1_80.npy', results)
+
+# Save the code to a file
+code = '''import numpy as np
+
+# Load the data
+data = np.load('data/80_original.npy')
+
+# Compute statistics for each channel
+peak_to_peak = np.ptp(data, axis=1)
+means = np.mean(data, axis=1)
+variances = np.var(data, axis=1)
+
+# Combine results into (7,3) array
+results = np.column_stack((peak_to_peak, means, variances))
+
+# Print results
+print("Channel Statistics:")
+print("Peak-to-Peak\\tMean\\t\\tVariance")
+for i, (pp, mean, var) in enumerate(results):
+    print(f"Channel {i+1}: {pp:.3f}\\t{mean:.3f}\\t{var:.3f}")
+
+# Save results
+np.save('result/1_80.npy', results)
+'''
+
+with open('result/1_80.py', 'w') as f:
+    f.write(code)
+```
+**********
+enter function perform_agent_action
+tool='Python_REPL' tool_input='```python\nimport numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\tMean\\t\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\t{mean:.3f}\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\\\tMean\\\\t\\\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\\\t{mean:.3f}\\\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\'\'\'\n\nwith open(\'result/1_80.py\', \'w\') as f:\n    f.write(code)\n```' log='Now that the EEG data has been parsed from the text file, I\'ll proceed to the second task: processing the numpy array to compute the required statistics and saving the results.\n\nI\'ll write Python code to:\n1. Load the numpy array from \'data/80_original.npy\'\n2. Compute peak-to-peak (max - min), mean, and variance for each channel\n3. Print the results\n4. Save the computed values in a (7,3) shaped array to \'result/1_80.npy\'\n\nHere\'s the Python code to accomplish this:\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\tMean\\t\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\t{mean:.3f}\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\\\tMean\\\\t\\\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\\\t{mean:.3f}\\\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\'\'\'\n\nwith open(\'result/1_80.py\', \'w\') as f:\n    f.write(code)\n```'
+**********
+**********
+enter function perform_agent_action lookup true branch
+Channel Statistics:
+Peak-to-Peak	Mean		Variance
+Channel 1: 15282.915	8.022	153604.609
+Channel 2: 19206.541	3.581	258412.317
+Channel 3: 13400.049	-3.963	168757.827
+Channel 4: 13281.897	-3.831	113945.489
+Channel 5: 13576.449	9.640	167308.583
+Channel 6: 13726.005	5.896	165913.507
+Channel 7: 13211.714	-6.769	170874.860
+
+**********
+****************************************************************************************************
+round 3
+****************************************************************************************************
+Channel Statistics:
+Peak-to-Peak	Mean		Variance
+Channel 1: 15282.915	8.022	153604.609
+Channel 2: 19206.541	3.581	258412.317
+Channel 3: 13400.049	-3.963	168757.827
+Channel 4: 13281.897	-3.831	113945.489
+Channel 5: 13576.449	9.640	167308.583
+Channel 6: 13726.005	5.896	165913.507
+Channel 7: 13211.714	-6.769	170874.860
+
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/80.txt；(2)编写并且运行python代码，对同目录下的data/80_original.npy,计算每个通道的峰峰值、均值和方差，打印结果, 将数值以(7,3)的格式存到同目录下的result/1_80.npy, (3)将代码保存到result/1_80.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/80.txt', log='I need to perform three tasks: parse EEG data from a text file, process a numpy array to compute peak-to-peak, mean, and variance for each channel, and save the results and code. Let\'s break it down step by step.\n\n1. First, I\'ll parse the EEG data from the specified text file.\n2. Then, I\'ll write Python code to process the numpy array and compute the required statistics.\n3. Finally, I\'ll save the results and the code to the specified locations.\n\nLet\'s start with the first task.\n\nAction: parse_eeg_data\nAction Input: "data/80.txt"'), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入'), (AgentAction(tool='Python_REPL', tool_input='```python\nimport numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\tMean\\t\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\t{mean:.3f}\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\\\tMean\\\\t\\\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\\\t{mean:.3f}\\\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\'\'\'\n\nwith open(\'result/1_80.py\', \'w\') as f:\n    f.write(code)\n```', log='Now that the EEG data has been parsed from the text file, I\'ll proceed to the second task: processing the numpy array to compute the required statistics and saving the results.\n\nI\'ll write Python code to:\n1. Load the numpy array from \'data/80_original.npy\'\n2. Compute peak-to-peak (max - min), mean, and variance for each channel\n3. Print the results\n4. Save the computed values in a (7,3) shaped array to \'result/1_80.npy\'\n\nHere\'s the Python code to accomplish this:\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\tMean\\t\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\t{mean:.3f}\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\n\n# Load the data\ndata = np.load(\'data/80_original.npy\')\n\n# Compute statistics for each channel\npeak_to_peak = np.ptp(data, axis=1)\nmeans = np.mean(data, axis=1)\nvariances = np.var(data, axis=1)\n\n# Combine results into (7,3) array\nresults = np.column_stack((peak_to_peak, means, variances))\n\n# Print results\nprint("Channel Statistics:")\nprint("Peak-to-Peak\\\\tMean\\\\t\\\\tVariance")\nfor i, (pp, mean, var) in enumerate(results):\n    print(f"Channel {i+1}: {pp:.3f}\\\\t{mean:.3f}\\\\t{var:.3f}")\n\n# Save results\nnp.save(\'result/1_80.npy\', results)\n\'\'\'\n\nwith open(\'result/1_80.py\', \'w\') as f:\n    f.write(code)\n```'), 'Channel Statistics:\nPeak-to-Peak\tMean\t\tVariance\nChannel 1: 15282.915\t8.022\t153604.609\nChannel 2: 19206.541\t3.581\t258412.317\nChannel 3: 13400.049\t-3.963\t168757.827\nChannel 4: 13281.897\t-3.831\t113945.489\nChannel 5: 13576.449\t9.640\t167308.583\nChannel 6: 13726.005\t5.896\t165913.507\nChannel 7: 13211.714\t-6.769\t170874.860\n')]
+begin debugging
+I have successfully completed all three tasks:
+1. Parsed the EEG data from 'data/80.txt'
+2. Processed the numpy array from 'data/80_original.npy' to compute and print the peak-to-peak, mean, and variance for each channel
+3. Saved the results as a (7,3) array to 'result/1_80.npy' and saved the code to 'result/1_80.py'
+
+The results show the statistics for each of the 7 channels, with the peak-to-peak values ranging from about 13,211 to 19,206, means ranging from -6.769 to 9.640, and variances ranging from 113,945 to 258,412.
+
+Final Answer: Successfully completed all tasks: (1) Parsed EEG data from data/80.txt, (2) Computed and printed channel statistics (peak-to-peak, mean, variance) from data/80_original.npy and saved results to result/1_80.npy, (3) Saved the processing code to result/1_80.py. The channel statistics are as printed above.
+end debugging
+print output here:
+return_values={'output': 'Successfully completed all tasks: (1) Parsed EEG data from data/80.txt, (2) Computed and printed channel statistics (peak-to-peak, mean, variance) from data/80_original.npy and saved results to result/1_80.npy, (3) Saved the processing code to result/1_80.py. The channel statistics are as printed above.'} log="I have successfully completed all three tasks:\n1. Parsed the EEG data from 'data/80.txt'\n2. Processed the numpy array from 'data/80_original.npy' to compute and print the peak-to-peak, mean, and variance for each channel\n3. Saved the results as a (7,3) array to 'result/1_80.npy' and saved the code to 'result/1_80.py'\n\nThe results show the statistics for each of the 7 channels, with the peak-to-peak values ranging from about 13,211 to 19,206, means ranging from -6.769 to 9.640, and variances ranging from 113,945 to 258,412.\n\nFinal Answer: Successfully completed all tasks: (1) Parsed EEG data from data/80.txt, (2) Computed and printed channel statistics (peak-to-peak, mean, variance) from data/80_original.npy and saved results to result/1_80.npy, (3) Saved the processing code to result/1_80.py. The channel statistics are as printed above."
+**********
+****************************************************************************************************
+round 4
+****************************************************************************************************
+I have successfully completed all three tasks:
+1. Parsed the EEG data from 'data/80.txt'
+2. Processed the numpy array from 'data/80_original.npy' to compute and print the peak-to-peak, mean, and variance for each channel
+3. Saved the results as a (7,3) array to 'result/1_80.npy' and saved the code to 'result/1_80.py'
+
+The results show the statistics for each of the 7 channels, with the peak-to-peak values ranging from about 13,211 to 19,206, means ranging from -6.769 to 9.640, and variances ranging from 113,945 to 258,412.
+
+Final Answer: Successfully completed all tasks: (1) Parsed EEG data from data/80.txt, (2) Computed and printed channel statistics (peak-to-peak, mean, variance) from data/80_original.npy and saved results to result/1_80.npy, (3) Saved the processing code to result/1_80.py. The channel statistics are as printed above.

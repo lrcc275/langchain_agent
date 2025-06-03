@@ -1,0 +1,397 @@
+enter function stream
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/54.txt；(2)编写并且运行python代码，对同目录下的data/54_original.npy,将所有通道数据分析EEG微状态，打印结果, 将数值以(7,4)的格式存到同目录下的result/11_54.npy, (3)将代码保存到result/11_54.py'}
+[]
+begin debugging
+I'll break this down into three parts: (1) parsing the EEG data, (2) analyzing the EEG microstates and saving results, and (3) saving the code. Let's proceed step by step.
+
+Thought: First, I need to parse the EEG data from the specified file.
+Action: parse_eeg_data
+Action Input: "data/54.txt"
+end debugging
+print output here:
+tool='parse_eeg_data' tool_input='data/54.txt' log='I\'ll break this down into three parts: (1) parsing the EEG data, (2) analyzing the EEG microstates and saving results, and (3) saving the code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file.\nAction: parse_eeg_data\nAction Input: "data/54.txt"'
+**********
+****************************************************************************************************
+round 0
+****************************************************************************************************
+I'll break this down into three parts: (1) parsing the EEG data, (2) analyzing the EEG microstates and saving results, and (3) saving the code. Let's proceed step by step.
+
+Thought: First, I need to parse the EEG data from the specified file.
+: parse_eeg_data
+ Input: "data/54.txt"
+**********
+enter function perform_agent_action
+tool='parse_eeg_data' tool_input='data/54.txt' log='I\'ll break this down into three parts: (1) parsing the EEG data, (2) analyzing the EEG microstates and saving results, and (3) saving the code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file.\nAction: parse_eeg_data\nAction Input: "data/54.txt"'
+**********
+**********
+enter function perform_agent_action lookup true branch
+你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入
+**********
+****************************************************************************************************
+round 1
+****************************************************************************************************
+你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/54.txt；(2)编写并且运行python代码，对同目录下的data/54_original.npy,将所有通道数据分析EEG微状态，打印结果, 将数值以(7,4)的格式存到同目录下的result/11_54.npy, (3)将代码保存到result/11_54.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/54.txt', log='I\'ll break this down into three parts: (1) parsing the EEG data, (2) analyzing the EEG microstates and saving results, and (3) saving the code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file.\nAction: parse_eeg_data\nAction Input: "data/54.txt"'), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入')]
+begin debugging
+Now that the first part is done, I'll proceed to the second part which involves analyzing the EEG microstates from the .npy file and saving the results. I'll need to write Python code for this.
+
+Thought: I need to write Python code to analyze EEG microstates from the .npy file, print results, and save them in the specified format. Then I'll save this code to a .py file.
+
+Action: Python_REPL
+Action Input:
+```python
+import numpy as np
+from pycrostates.io import ChData
+from pycrostates.preprocessing import extract_gfp_peaks
+from pycrostates.cluster import ModKMeans
+
+# Load the data
+data = np.load('data/54_original.npy')
+
+# Create ChData object (assuming EEG data)
+ch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz
+
+# Extract GFP peaks
+gfp_data = extract_gfp_peaks(ch_data)
+
+# Perform microstate analysis with ModKMeans
+n_microstates = 4  # Typical number of microstates
+modkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)
+modkmeans.fit(gfp_data, n_jobs=-1)
+
+# Get microstate maps (7 channels x 4 microstates)
+microstate_maps = modkmeans.cluster_centers_.data.T
+
+# Print results
+print("Microstate maps (7 channels x 4 microstates):")
+print(microstate_maps)
+
+# Save results in (7,4) format
+np.save('result/11_54.npy', microstate_maps)
+
+# Save the code to a file
+code = '''import numpy as np
+from pycrostates.io import ChData
+from pycrostates.preprocessing import extract_gfp_peaks
+from pycrostates.cluster import ModKMeans
+
+# Load the data
+data = np.load('data/54_original.npy')
+
+# Create ChData object
+ch_data = ChData(data, sfreq=250)
+
+# Extract GFP peaks
+gfp_data = extract_gfp_peaks(ch_data)
+
+# Perform microstate analysis
+n_microstates = 4
+modkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)
+modkmeans.fit(gfp_data, n_jobs=-1)
+
+# Get microstate maps
+microstate_maps = modkmeans.cluster_centers_.data.T
+
+# Save results
+np.save('result/11_54.npy', microstate_maps)
+'''
+
+with open('result/11_54.py', 'w') as f:
+    f.write(code)
+```
+
+end debugging
+print output here:
+tool='Python_REPL' tool_input='```python\nimport numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object (assuming EEG data)\nch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis with ModKMeans\nn_microstates = 4  # Typical number of microstates\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps (7 channels x 4 microstates)\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object\nch_data = ChData(data, sfreq=250)\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis\nn_microstates = 4\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n' log='Now that the first part is done, I\'ll proceed to the second part which involves analyzing the EEG microstates from the .npy file and saving the results. I\'ll need to write Python code for this.\n\nThought: I need to write Python code to analyze EEG microstates from the .npy file, print results, and save them in the specified format. Then I\'ll save this code to a .py file.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object (assuming EEG data)\nch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis with ModKMeans\nn_microstates = 4  # Typical number of microstates\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps (7 channels x 4 microstates)\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object\nch_data = ChData(data, sfreq=250)\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis\nn_microstates = 4\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n'
+**********
+****************************************************************************************************
+round 2
+****************************************************************************************************
+Now that the first part is done, I'll proceed to the second part which involves analyzing the EEG microstates from the .npy file and saving the results. I'll need to write Python code for this.
+
+Thought: I need to write Python code to analyze EEG microstates from the .npy file, print results, and save them in the specified format. Then I'll save this code to a .py file.
+
+: Python_REPL
+ Input:
+```python
+import numpy as np
+from pycrostates.io import ChData
+from pycrostates.preprocessing import extract_gfp_peaks
+from pycrostates.cluster import ModKMeans
+
+# Load the data
+data = np.load('data/54_original.npy')
+
+# Create ChData object (assuming EEG data)
+ch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz
+
+# Extract GFP peaks
+gfp_data = extract_gfp_peaks(ch_data)
+
+# Perform microstate analysis with ModKMeans
+n_microstates = 4  # Typical number of microstates
+modkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)
+modkmeans.fit(gfp_data, n_jobs=-1)
+
+# Get microstate maps (7 channels x 4 microstates)
+microstate_maps = modkmeans.cluster_centers_.data.T
+
+# Print results
+print("Microstate maps (7 channels x 4 microstates):")
+print(microstate_maps)
+
+# Save results in (7,4) format
+np.save('result/11_54.npy', microstate_maps)
+
+# Save the code to a file
+code = '''import numpy as np
+from pycrostates.io import ChData
+from pycrostates.preprocessing import extract_gfp_peaks
+from pycrostates.cluster import ModKMeans
+
+# Load the data
+data = np.load('data/54_original.npy')
+
+# Create ChData object
+ch_data = ChData(data, sfreq=250)
+
+# Extract GFP peaks
+gfp_data = extract_gfp_peaks(ch_data)
+
+# Perform microstate analysis
+n_microstates = 4
+modkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)
+modkmeans.fit(gfp_data, n_jobs=-1)
+
+# Get microstate maps
+microstate_maps = modkmeans.cluster_centers_.data.T
+
+# Save results
+np.save('result/11_54.npy', microstate_maps)
+'''
+
+with open('result/11_54.py', 'w') as f:
+    f.write(code)
+```
+
+**********
+enter function perform_agent_action
+tool='Python_REPL' tool_input='```python\nimport numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object (assuming EEG data)\nch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis with ModKMeans\nn_microstates = 4  # Typical number of microstates\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps (7 channels x 4 microstates)\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object\nch_data = ChData(data, sfreq=250)\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis\nn_microstates = 4\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n' log='Now that the first part is done, I\'ll proceed to the second part which involves analyzing the EEG microstates from the .npy file and saving the results. I\'ll need to write Python code for this.\n\nThought: I need to write Python code to analyze EEG microstates from the .npy file, print results, and save them in the specified format. Then I\'ll save this code to a .py file.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object (assuming EEG data)\nch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis with ModKMeans\nn_microstates = 4  # Typical number of microstates\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps (7 channels x 4 microstates)\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object\nch_data = ChData(data, sfreq=250)\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis\nn_microstates = 4\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n'
+**********
+**********
+enter function perform_agent_action lookup true branch
+ModuleNotFoundError("No module named 'pycrostates'")
+**********
+****************************************************************************************************
+round 3
+****************************************************************************************************
+ModuleNotFoundError("No module named 'pycrostates'")
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/54.txt；(2)编写并且运行python代码，对同目录下的data/54_original.npy,将所有通道数据分析EEG微状态，打印结果, 将数值以(7,4)的格式存到同目录下的result/11_54.npy, (3)将代码保存到result/11_54.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/54.txt', log='I\'ll break this down into three parts: (1) parsing the EEG data, (2) analyzing the EEG microstates and saving results, and (3) saving the code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file.\nAction: parse_eeg_data\nAction Input: "data/54.txt"'), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入'), (AgentAction(tool='Python_REPL', tool_input='```python\nimport numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object (assuming EEG data)\nch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis with ModKMeans\nn_microstates = 4  # Typical number of microstates\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps (7 channels x 4 microstates)\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object\nch_data = ChData(data, sfreq=250)\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis\nn_microstates = 4\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n', log='Now that the first part is done, I\'ll proceed to the second part which involves analyzing the EEG microstates from the .npy file and saving the results. I\'ll need to write Python code for this.\n\nThought: I need to write Python code to analyze EEG microstates from the .npy file, print results, and save them in the specified format. Then I\'ll save this code to a .py file.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object (assuming EEG data)\nch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis with ModKMeans\nn_microstates = 4  # Typical number of microstates\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps (7 channels x 4 microstates)\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object\nch_data = ChData(data, sfreq=250)\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis\nn_microstates = 4\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n'), 'ModuleNotFoundError("No module named \'pycrostates\'")')]
+begin debugging
+It seems the 'pycrostates' package is not available. I'll modify the code to use a more basic approach for EEG microstate analysis using standard numpy and scipy functions.
+
+Action: Python_REPL
+Action Input:
+```python
+import numpy as np
+from scipy.cluster.vq import kmeans2
+
+# Load the data
+data = np.load('data/54_original.npy')
+
+# Calculate Global Field Power (GFP)
+gfp = np.std(data, axis=0)
+
+# Find GFP peaks (top 10% values)
+threshold = np.percentile(gfp, 90)
+peak_indices = np.where(gfp > threshold)[0]
+peak_data = data[:, peak_indices].T
+
+# Perform k-means clustering for microstates (4 microstates)
+n_microstates = 4
+centroids, labels = kmeans2(peak_data, n_microstates, minit='++')
+
+# Reshape centroids to (7 channels x 4 microstates)
+microstate_maps = centroids.T
+
+# Print results
+print("Microstate maps (7 channels x 4 microstates):")
+print(microstate_maps)
+
+# Save results in (7,4) format
+np.save('result/11_54.npy', microstate_maps)
+
+# Save the code to a file
+code = '''import numpy as np
+from scipy.cluster.vq import kmeans2
+
+# Load the data
+data = np.load('data/54_original.npy')
+
+# Calculate Global Field Power (GFP)
+gfp = np.std(data, axis=0)
+
+# Find GFP peaks (top 10% values)
+threshold = np.percentile(gfp, 90)
+peak_indices = np.where(gfp > threshold)[0]
+peak_data = data[:, peak_indices].T
+
+# Perform k-means clustering for microstates
+n_microstates = 4
+centroids, labels = kmeans2(peak_data, n_microstates, minit='++')
+
+# Reshape centroids to (7 channels x 4 microstates)
+microstate_maps = centroids.T
+
+# Save results
+np.save('result/11_54.npy', microstate_maps)
+'''
+
+with open('result/11_54.py', 'w') as f:
+    f.write(code)
+```
+
+end debugging
+print output here:
+tool='Python_REPL' tool_input='```python\nimport numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates (4 microstates)\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n' log='It seems the \'pycrostates\' package is not available. I\'ll modify the code to use a more basic approach for EEG microstate analysis using standard numpy and scipy functions.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates (4 microstates)\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n'
+**********
+****************************************************************************************************
+round 4
+****************************************************************************************************
+It seems the 'pycrostates' package is not available. I'll modify the code to use a more basic approach for EEG microstate analysis using standard numpy and scipy functions.
+
+: Python_REPL
+ Input:
+```python
+import numpy as np
+from scipy.cluster.vq import kmeans2
+
+# Load the data
+data = np.load('data/54_original.npy')
+
+# Calculate Global Field Power (GFP)
+gfp = np.std(data, axis=0)
+
+# Find GFP peaks (top 10% values)
+threshold = np.percentile(gfp, 90)
+peak_indices = np.where(gfp > threshold)[0]
+peak_data = data[:, peak_indices].T
+
+# Perform k-means clustering for microstates (4 microstates)
+n_microstates = 4
+centroids, labels = kmeans2(peak_data, n_microstates, minit='++')
+
+# Reshape centroids to (7 channels x 4 microstates)
+microstate_maps = centroids.T
+
+# Print results
+print("Microstate maps (7 channels x 4 microstates):")
+print(microstate_maps)
+
+# Save results in (7,4) format
+np.save('result/11_54.npy', microstate_maps)
+
+# Save the code to a file
+code = '''import numpy as np
+from scipy.cluster.vq import kmeans2
+
+# Load the data
+data = np.load('data/54_original.npy')
+
+# Calculate Global Field Power (GFP)
+gfp = np.std(data, axis=0)
+
+# Find GFP peaks (top 10% values)
+threshold = np.percentile(gfp, 90)
+peak_indices = np.where(gfp > threshold)[0]
+peak_data = data[:, peak_indices].T
+
+# Perform k-means clustering for microstates
+n_microstates = 4
+centroids, labels = kmeans2(peak_data, n_microstates, minit='++')
+
+# Reshape centroids to (7 channels x 4 microstates)
+microstate_maps = centroids.T
+
+# Save results
+np.save('result/11_54.npy', microstate_maps)
+'''
+
+with open('result/11_54.py', 'w') as f:
+    f.write(code)
+```
+
+**********
+enter function perform_agent_action
+tool='Python_REPL' tool_input='```python\nimport numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates (4 microstates)\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n' log='It seems the \'pycrostates\' package is not available. I\'ll modify the code to use a more basic approach for EEG microstate analysis using standard numpy and scipy functions.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates (4 microstates)\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n'
+**********
+**********
+enter function perform_agent_action lookup true branch
+Microstate maps (7 channels x 4 microstates):
+[[ 1.76086705e+01 -1.41896433e+02  4.57850013e+01 -1.46286743e+02]
+ [ 1.02673354e+01 -1.51742031e+02  6.60429297e+01 -1.35820484e+02]
+ [ 8.90937723e-01 -6.44865687e+02  2.24357570e+02 -3.01999153e+01]
+ [ 4.77578585e-01 -1.58735376e+02  5.80347924e+01 -1.23529960e+02]
+ [ 2.59898189e+01 -1.45515008e+02  4.55689920e+01 -1.32347383e+02]
+ [ 1.54767434e+01 -1.47550048e+02  6.16007151e+01 -1.32095645e+02]
+ [-2.26205908e+00 -1.62969487e+02  4.96807635e+01 -1.47246739e+02]]
+
+**********
+****************************************************************************************************
+round 5
+****************************************************************************************************
+Microstate maps (7 channels x 4 microstates):
+[[ 1.76086705e+01 -1.41896433e+02  4.57850013e+01 -1.46286743e+02]
+ [ 1.02673354e+01 -1.51742031e+02  6.60429297e+01 -1.35820484e+02]
+ [ 8.90937723e-01 -6.44865687e+02  2.24357570e+02 -3.01999153e+01]
+ [ 4.77578585e-01 -1.58735376e+02  5.80347924e+01 -1.23529960e+02]
+ [ 2.59898189e+01 -1.45515008e+02  4.55689920e+01 -1.32347383e+02]
+ [ 1.54767434e+01 -1.47550048e+02  6.16007151e+01 -1.32095645e+02]
+ [-2.26205908e+00 -1.62969487e+02  4.96807635e+01 -1.47246739e+02]]
+
+**********
+{'input': '(1)使用parse_eeg_data工具，解析同目录下的data/54.txt；(2)编写并且运行python代码，对同目录下的data/54_original.npy,将所有通道数据分析EEG微状态，打印结果, 将数值以(7,4)的格式存到同目录下的result/11_54.npy, (3)将代码保存到result/11_54.py'}
+[(AgentAction(tool='parse_eeg_data', tool_input='data/54.txt', log='I\'ll break this down into three parts: (1) parsing the EEG data, (2) analyzing the EEG microstates and saving results, and (3) saving the code. Let\'s proceed step by step.\n\nThought: First, I need to parse the EEG data from the specified file.\nAction: parse_eeg_data\nAction Input: "data/54.txt"'), '你已经完成了第一步，请继续进行下一步！如果你不知道下一步做什么，请多关注我的输入'), (AgentAction(tool='Python_REPL', tool_input='```python\nimport numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object (assuming EEG data)\nch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis with ModKMeans\nn_microstates = 4  # Typical number of microstates\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps (7 channels x 4 microstates)\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object\nch_data = ChData(data, sfreq=250)\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis\nn_microstates = 4\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n', log='Now that the first part is done, I\'ll proceed to the second part which involves analyzing the EEG microstates from the .npy file and saving the results. I\'ll need to write Python code for this.\n\nThought: I need to write Python code to analyze EEG microstates from the .npy file, print results, and save them in the specified format. Then I\'ll save this code to a .py file.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object (assuming EEG data)\nch_data = ChData(data, sfreq=250)  # Assuming sample rate of 250Hz\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis with ModKMeans\nn_microstates = 4  # Typical number of microstates\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps (7 channels x 4 microstates)\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom pycrostates.io import ChData\nfrom pycrostates.preprocessing import extract_gfp_peaks\nfrom pycrostates.cluster import ModKMeans\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Create ChData object\nch_data = ChData(data, sfreq=250)\n\n# Extract GFP peaks\ngfp_data = extract_gfp_peaks(ch_data)\n\n# Perform microstate analysis\nn_microstates = 4\nmodkmeans = ModKMeans(n_clusters=n_microstates, random_state=42)\nmodkmeans.fit(gfp_data, n_jobs=-1)\n\n# Get microstate maps\nmicrostate_maps = modkmeans.cluster_centers_.data.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n'), 'ModuleNotFoundError("No module named \'pycrostates\'")'), (AgentAction(tool='Python_REPL', tool_input='```python\nimport numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates (4 microstates)\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n', log='It seems the \'pycrostates\' package is not available. I\'ll modify the code to use a more basic approach for EEG microstate analysis using standard numpy and scipy functions.\n\nAction: Python_REPL\nAction Input:\n```python\nimport numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates (4 microstates)\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Print results\nprint("Microstate maps (7 channels x 4 microstates):")\nprint(microstate_maps)\n\n# Save results in (7,4) format\nnp.save(\'result/11_54.npy\', microstate_maps)\n\n# Save the code to a file\ncode = \'\'\'import numpy as np\nfrom scipy.cluster.vq import kmeans2\n\n# Load the data\ndata = np.load(\'data/54_original.npy\')\n\n# Calculate Global Field Power (GFP)\ngfp = np.std(data, axis=0)\n\n# Find GFP peaks (top 10% values)\nthreshold = np.percentile(gfp, 90)\npeak_indices = np.where(gfp > threshold)[0]\npeak_data = data[:, peak_indices].T\n\n# Perform k-means clustering for microstates\nn_microstates = 4\ncentroids, labels = kmeans2(peak_data, n_microstates, minit=\'++\')\n\n# Reshape centroids to (7 channels x 4 microstates)\nmicrostate_maps = centroids.T\n\n# Save results\nnp.save(\'result/11_54.npy\', microstate_maps)\n\'\'\'\n\nwith open(\'result/11_54.py\', \'w\') as f:\n    f.write(code)\n```\n'), 'Microstate maps (7 channels x 4 microstates):\n[[ 1.76086705e+01 -1.41896433e+02  4.57850013e+01 -1.46286743e+02]\n [ 1.02673354e+01 -1.51742031e+02  6.60429297e+01 -1.35820484e+02]\n [ 8.90937723e-01 -6.44865687e+02  2.24357570e+02 -3.01999153e+01]\n [ 4.77578585e-01 -1.58735376e+02  5.80347924e+01 -1.23529960e+02]\n [ 2.59898189e+01 -1.45515008e+02  4.55689920e+01 -1.32347383e+02]\n [ 1.54767434e+01 -1.47550048e+02  6.16007151e+01 -1.32095645e+02]\n [-2.26205908e+00 -1.62969487e+02  4.96807635e+01 -1.47246739e+02]]\n')]
+begin debugging
+I now know the final answer. The EEG microstate analysis has been completed successfully. The microstate maps (7 channels x 4 microstates) have been printed and saved to 'result/11_54.npy', and the code has been saved to 'result/11_54.py'.
+
+Final Answer: 
+1. The EEG data from 'data/54.txt' has been parsed successfully.
+2. The EEG microstate analysis has been performed on 'data/54_original.npy', resulting in 4 microstates across 7 channels. The results have been printed and saved to 'result/11_54.npy' in (7,4) format.
+3. The analysis code has been saved to 'result/11_54.py'.
+
+The microstate maps (7 channels x 4 microstates) are:
+[[ 1.76086705e+01 -1.41896433e+02  4.57850013e+01 -1.46286743e+02]
+ [ 1.02673354e+01 -1.51742031e+02  6.60429297e+01 -1.35820484e+02]
+ [ 8.90937723e-01 -6.44865687e+02  2.24357570e+02 -3.01999153e+01]
+ [ 4.77578585e-01 -1.58735376e+02  5.80347924e+01 -1.23529960e+02]
+ [ 2.59898189e+01 -1.45515008e+02  4.55689920e+01 -1.32347383e+02]
+ [ 1.54767434e+01 -1.47550048e+02  6.16007151e+01 -1.32095645e+02]
+ [-2.26205908e+00 -1.62969487e+02  4.96807635e+01 -1.47246739e+02]]
+end debugging
+print output here:
+return_values={'output': "1. The EEG data from 'data/54.txt' has been parsed successfully.\n2. The EEG microstate analysis has been performed on 'data/54_original.npy', resulting in 4 microstates across 7 channels. The results have been printed and saved to 'result/11_54.npy' in (7,4) format.\n3. The analysis code has been saved to 'result/11_54.py'.\n\nThe microstate maps (7 channels x 4 microstates) are:\n[[ 1.76086705e+01 -1.41896433e+02  4.57850013e+01 -1.46286743e+02]\n [ 1.02673354e+01 -1.51742031e+02  6.60429297e+01 -1.35820484e+02]\n [ 8.90937723e-01 -6.44865687e+02  2.24357570e+02 -3.01999153e+01]\n [ 4.77578585e-01 -1.58735376e+02  5.80347924e+01 -1.23529960e+02]\n [ 2.59898189e+01 -1.45515008e+02  4.55689920e+01 -1.32347383e+02]\n [ 1.54767434e+01 -1.47550048e+02  6.16007151e+01 -1.32095645e+02]\n [-2.26205908e+00 -1.62969487e+02  4.96807635e+01 -1.47246739e+02]]"} log="I now know the final answer. The EEG microstate analysis has been completed successfully. The microstate maps (7 channels x 4 microstates) have been printed and saved to 'result/11_54.npy', and the code has been saved to 'result/11_54.py'.\n\nFinal Answer: \n1. The EEG data from 'data/54.txt' has been parsed successfully.\n2. The EEG microstate analysis has been performed on 'data/54_original.npy', resulting in 4 microstates across 7 channels. The results have been printed and saved to 'result/11_54.npy' in (7,4) format.\n3. The analysis code has been saved to 'result/11_54.py'.\n\nThe microstate maps (7 channels x 4 microstates) are:\n[[ 1.76086705e+01 -1.41896433e+02  4.57850013e+01 -1.46286743e+02]\n [ 1.02673354e+01 -1.51742031e+02  6.60429297e+01 -1.35820484e+02]\n [ 8.90937723e-01 -6.44865687e+02  2.24357570e+02 -3.01999153e+01]\n [ 4.77578585e-01 -1.58735376e+02  5.80347924e+01 -1.23529960e+02]\n [ 2.59898189e+01 -1.45515008e+02  4.55689920e+01 -1.32347383e+02]\n [ 1.54767434e+01 -1.47550048e+02  6.16007151e+01 -1.32095645e+02]\n [-2.26205908e+00 -1.62969487e+02  4.96807635e+01 -1.47246739e+02]]"
+**********
+****************************************************************************************************
+round 6
+****************************************************************************************************
+I now know the final answer. The EEG microstate analysis has been completed successfully. The microstate maps (7 channels x 4 microstates) have been printed and saved to 'result/11_54.npy', and the code has been saved to 'result/11_54.py'.
+
+Final Answer: 
+1. The EEG data from 'data/54.txt' has been parsed successfully.
+2. The EEG microstate analysis has been performed on 'data/54_original.npy', resulting in 4 microstates across 7 channels. The results have been printed and saved to 'result/11_54.npy' in (7,4) format.
+3. The analysis code has been saved to 'result/11_54.py'.
+
+The microstate maps (7 channels x 4 microstates) are:
+[[ 1.76086705e+01 -1.41896433e+02  4.57850013e+01 -1.46286743e+02]
+ [ 1.02673354e+01 -1.51742031e+02  6.60429297e+01 -1.35820484e+02]
+ [ 8.90937723e-01 -6.44865687e+02  2.24357570e+02 -3.01999153e+01]
+ [ 4.77578585e-01 -1.58735376e+02  5.80347924e+01 -1.23529960e+02]
+ [ 2.59898189e+01 -1.45515008e+02  4.55689920e+01 -1.32347383e+02]
+ [ 1.54767434e+01 -1.47550048e+02  6.16007151e+01 -1.32095645e+02]
+ [-2.26205908e+00 -1.62969487e+02  4.96807635e+01 -1.47246739e+02]]
