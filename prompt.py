@@ -1,6 +1,9 @@
-def generate_input(input_file_name1 : str, input_file_name2 : str, input_file_name3 : str, input_file_name4 : str, task_requirement : str, data_format : str):
-    input_q = "(1)使用parse_eeg_data工具，解析同目录下的" + input_file_name1 + "；(2)编写并且运行python代码，对同目录下的" + input_file_name2 + "," + task_requirement + ", 将数值以" + data_format + "的格式存到同目录下的" + input_file_name3 + ", (3)将代码保存到" + input_file_name4
-    return input_q
+# def generate_input(input_file_name1 : str, input_file_name2 : str, input_file_name3 : str, input_file_name4 : str, task_requirement : str, data_format : str):
+#     input_q = "(1)使用parse_eeg_data工具，解析同目录下的" + input_file_name1 + "；(2)编写并且运行python代码，对同目录下的" + input_file_name2 + "," + task_requirement + ", 将数值以" + data_format + "的格式存到同目录下的" + input_file_name3 + ", (3)将代码保存到" + input_file_name4
+#     return input_q
+
+def generate_input(input_file_name1 : str, input_file_name2 : str, input_file_name3 : str, input_file_name4 : str, task_requirement : str,data_description : str, data_format : str):
+    return task_requirement + "使用同目录下的" + input_file_name1 + "，以" + data_description + "来验证你的函数。函数的输出是一个np.array，输出格式是", + data_format + "。将你生成的测试结果保存到" + input_file_name2 + "，将你的代码保存到" + input_file_name3
 
 def task_requirements(i : int):
     if i == 1:
